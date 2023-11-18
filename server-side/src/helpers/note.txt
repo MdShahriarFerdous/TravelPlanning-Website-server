@@ -1,1 +1,0 @@
-this is helpers folder --> password hashing and others
