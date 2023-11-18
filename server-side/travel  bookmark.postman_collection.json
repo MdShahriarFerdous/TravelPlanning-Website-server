@@ -1,0 +1,113 @@
+{
+	"info": {
+		"_postman_id": "22d35a88-1a84-4649-bf16-75884022b3ae",
+		"name": "travel  bookmark",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27192006",
+		"_collection_link": "https://cloudy-robot-528746.postman.co/workspace/b2f13ad0-6c0d-446a-9ca4-09bb679a4df1/collection/27192006-22d35a88-1a84-4649-bf16-75884022b3ae?action=share&source=collection_link&creator=27192006"
+	},
+	"item": [
+		{
+			"name": "bookmark",
+			"item": [
+				{
+					"name": "add bookmark",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "id",
+								"value": "5fcda8b5a92b3b7f85673522",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/bookmarks/5fcda8b5a92b3b7f8567351c",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"bookmarks",
+								"5fcda8b5a92b3b7f8567351c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all bookmark",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "id",
+								"value": "5fcda8b5a92b3b7f85673520",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/getAllBookmarks",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"getAllBookmarks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete bookmark",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "id",
+								"value": "5fcda8b5a92b3b7f85673522",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/remove-bookmarks",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"remove-bookmarks"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://localhost:8000/api/v1",
+			"type": "string"
+		}
+	]
+}

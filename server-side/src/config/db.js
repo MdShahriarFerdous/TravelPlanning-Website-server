@@ -1,6 +1,6 @@
 // Database Lib import
 const mongoose = require("mongoose");
-const { MongoDBConnectionPort } = require("../../secret");
+const { MongoDBConnectionPort } = require("../../secrets");
 
 const databaseConnection = () => {
 	mongoose.set("strictQuery", false);
