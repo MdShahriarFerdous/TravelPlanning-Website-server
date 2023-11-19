@@ -162,7 +162,7 @@ exports.userLogin = async (req, res, next) => {
 exports.updateProfile = async (req, res, next) => {
 	try {
 		const { city, bio, phone } = req.body;
-		const { image, path } = req.file;
+		const { image, path } = req.file || {};
 		const userId = req.user._id;
 
 		// Validation for bio only
