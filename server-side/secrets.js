@@ -1,6 +1,6 @@
 //Config Lib import and configured
 require("dotenv").config();
-const ServerPort = process.env.SERVER_PORT;
+const ServerPort = process.env.SERVER_PORT || process.env.PORT;
 const MongoDBConnectionPort = process.env.MONGO_DB_CONNECTION;
 const MongoDBAtlasConnection = process.env.MONGODB_ATLAS_CONNECTION;
 const defaultImagePath =
