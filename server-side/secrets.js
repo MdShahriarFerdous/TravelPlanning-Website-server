@@ -2,6 +2,7 @@
 require("dotenv").config();
 const ServerPort = process.env.SERVER_PORT;
 const MongoDBConnectionPort = process.env.MONGO_DB_CONNECTION;
+const MongoDBAtlasConnection = process.env.MONGODB_ATLAS_CONNECTION;
 const defaultImagePath =
 	process.env.DEFAULT_IMAGE_PATH || "public/images/users/profile.png";
 const jwtSecretKey =
@@ -19,4 +20,5 @@ module.exports = {
 	smtpUsername,
 	smtpPassword,
 	clientURL,
+	MongoDBAtlasConnection,
 };
