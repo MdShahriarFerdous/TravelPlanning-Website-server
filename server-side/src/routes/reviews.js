@@ -1,10 +1,11 @@
 const router = require("express").Router();
 
 const reviewController = require("../controllers/reviewController");
+const { requireSignIn } = require("../middlewares/authMiddlewares");
 
-router.post("/review", reviewController.createReview);
+router.post("/review", requireSignIn, reviewController.createReview);
 router.get("/review", reviewController.listReview);
-router.post("/review/:id", reviewController.updateReview);
-router.get("/review/:id", reviewController.deleteReview);
+router.post("/review/:id", requireSignIn, reviewController.updateReview);
+router.get("/review/:id", requireSignIn, reviewController.deleteReview);
 
 module.exports = router;
