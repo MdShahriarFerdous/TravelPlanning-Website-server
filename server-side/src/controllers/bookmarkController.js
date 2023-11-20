@@ -7,7 +7,7 @@ exports.addToBookmarks = async (req, res) => {
 
     // Extract userId from request headers and hotelId from request params
     const userId = req.headers.id;
-    const hotelId= req.params.hotelId;
+    const { hotelId, tourId }= req.params;
 
 
     // Insert a new bookmark for the user
@@ -16,7 +16,7 @@ exports.addToBookmarks = async (req, res) => {
         {
             $set: { userId},
             // Add flightId and hotelId to the bookmarks 
-            $addToSet: { hotelId }
+            $addToSet: { hotelId, tourId }
         },
         
         {upsert: true})

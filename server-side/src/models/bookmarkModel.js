@@ -9,6 +9,10 @@ const bookmarkSchema = new mongoose.Schema({
     hotelId : [{
         type : mongoose.Schema.Types.ObjectId,
         required: true
+    }],
+    tourId : [{
+        type : mongoose.Schema.Types.ObjectId,
+        required: true
     }]
     
 }, 
