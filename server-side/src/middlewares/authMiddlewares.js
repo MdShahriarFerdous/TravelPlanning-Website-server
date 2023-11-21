@@ -25,6 +25,7 @@ exports.requireSignIn = async (req, res, next) => {
 
 exports.isAdmin = async (req, res, next) => {
 	try {
+		
 		const user = await User.findById(req.user._id);
 
 		if (user.isAdmin !== true) {
@@ -36,3 +37,4 @@ exports.isAdmin = async (req, res, next) => {
 		res.json(error.message);
 	}
 };
+
