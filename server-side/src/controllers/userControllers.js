@@ -2,9 +2,9 @@ const { jwtSecretKey, clientURL } = require("../../secrets");
 const { hashPassword, comparePassword } = require("../helpers/hashPass");
 const { createJsonWebToken } = require("../helpers/jsonWebToken");
 const { sendEmail } = require("../helpers/sendEmail");
-const User = require("../models/userModel");
+const User = require("../models/usermodel/userModel");
 const jwt = require("jsonwebtoken");
-const UserProfile = require("../models/userProfileModel");
+const UserProfile = require("../models/usermodel/userProfileModel");
 
 //send activation link to register user
 exports.userRegister = async (req, res, next) => {
