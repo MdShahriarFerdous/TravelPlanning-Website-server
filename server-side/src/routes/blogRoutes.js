@@ -2,6 +2,7 @@ const router = require("express").Router();
 const {
   createBlog,
   blogsList,
+  UserSpecificBlogs,
   updateBlog,
   deleteBlog,
   createBlogCategory,
@@ -21,12 +22,20 @@ router.post(
 router.post("/blog-category", requireSignIn, createBlogCategory);
 
 // View All Blog
-// router.get("/blogs", blogsList);
+router.get("/blogs", blogsList);
+
+// View Blogs only by user
+router.get("/blogs-by-user", requireSignIn, UserSpecificBlogs);
 
 // Update a Single Blog
-// router.post("/blogs/:id", requireSignIn, updateBlog);
+router.put(
+  "/blogs/:blogId",
+  requireSignIn,
+  Uploads,
+  updateBlog
+);
 
 // Delete a Single Blog
-// router.post("/blogs/:id", requireSignIn, deleteBlog);
+router.delete("/blogs/:blogId", requireSignIn, deleteBlog);
 
 module.exports = router;
