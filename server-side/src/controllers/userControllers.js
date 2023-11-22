@@ -36,7 +36,7 @@ exports.userRegister = async (req, res, next) => {
 		const token = createJsonWebToken(
 			{ username, email, password },
 			jwtSecretKey,
-			"1h"
+			"1d"
 		);
 
 		//Create Email Data
@@ -109,7 +109,7 @@ exports.userVerify = async (req, res, next) => {
 		const createdToken = createJsonWebToken(
 			{ _id: registerUser._id },
 			jwtSecretKey,
-			"1h"
+			"1d"
 		);
 
 		res.status(201).json({

@@ -22,10 +22,7 @@ exports.requireSignIn = async (req, res, next) => {
 	}
 };
 
-// exports.isAdmin = async (req, res, next) => {
-// 	try {
-// 		const user = await User.findById(req.user._id);
-
+<<<<<<< HEAD
 // 		if (user.isAdmin === false) {
 // 			return res.status(401).send("Unauthorized");
 // 		} else {
@@ -35,3 +32,5 @@ exports.requireSignIn = async (req, res, next) => {
 // 		res.json(error.message);
 // 	}
 // };
+=======
+>>>>>>> development
