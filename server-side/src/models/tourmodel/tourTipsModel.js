@@ -1,31 +1,20 @@
 const mongoose = require("mongoose");
 
-const tourFoodSchema = new mongoose.Schema(
+const tourTipSchema = new mongoose.Schema(
 	{
 		tourId: {
 			type: String,
 			required: true,
 			trim: true,
 		},
-		dayNo: {
-			type: Number,
-			required: true,
-		},
-		breakfast: [
+		thingsCandDo: [
 			{
 				type: String,
 				required: true,
 				trim: true,
 			},
 		],
-		lunch: [
-			{
-				type: String,
-				required: true,
-				trim: true,
-			},
-		],
-		dinner: [
+		thingsToAvoid: [
 			{
 				type: String,
 				required: true,
@@ -39,5 +28,5 @@ const tourFoodSchema = new mongoose.Schema(
 	}
 );
 
-const TourFood = mongoose.model("TourFood", tourFoodSchema);
-module.exports = TourFood;
+const TourTip = mongoose.model("TourTip", tourTipSchema);
+module.exports = TourTip;

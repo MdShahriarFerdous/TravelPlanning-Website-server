@@ -3,7 +3,7 @@ const { ObjectId } = mongoose.Schema;
 
 const tourBookingSchema = new mongoose.Schema(
 	{
-		user: {
+		userId: {
 			type: ObjectId,
 			ref: "User",
 		},
@@ -11,9 +11,46 @@ const tourBookingSchema = new mongoose.Schema(
 			type: ObjectId,
 			ref: "TourInfo",
 		},
+		tourId: {
+			type: String,
+			required: true,
+			trim: true,
+		},
+		packageName: {
+			type: String,
+			trim: true,
+		},
 		bookingDate: {
 			type: Date,
 			default: Date.now,
+		},
+		journeyDate: {
+			type: Date,
+		},
+		adultParticipants: {
+			type: Number,
+			required: true,
+			default: 1,
+		},
+		childrenParticipants: {
+			type: Number,
+			required: true,
+			default: 0,
+		},
+		vehicleOption: {
+			type: String,
+			trim: true,
+		},
+		bookingStatus: {
+			type: String,
+			default: "Pending",
+		},
+		totalToPay: {
+			type: Number,
+		},
+		paymentStatus: {
+			type: String,
+			default: "Pending",
 		},
 	},
 	{

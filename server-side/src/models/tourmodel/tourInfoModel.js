@@ -1,12 +1,7 @@
 const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Schema;
 
 const tourInfoSchema = new mongoose.Schema(
 	{
-		user: {
-			type: ObjectId,
-			ref: "User",
-		},
 		tourId: {
 			type: String,
 			required: true,
@@ -16,6 +11,11 @@ const tourInfoSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 			unique: true,
+			trim: true,
+		},
+		typeOfTour: {
+			type: String,
+			required: true,
 			trim: true,
 		},
 		about: {
@@ -41,7 +41,7 @@ const tourInfoSchema = new mongoose.Schema(
 			trim: true,
 		},
 		distance: {
-			type: Number,
+			type: String,
 			required: true,
 		},
 		images: [
@@ -50,28 +50,13 @@ const tourInfoSchema = new mongoose.Schema(
 				required: true,
 			},
 		],
-		desc: {
-			type: String,
-			required: true,
-		},
 		price: {
 			type: Number,
 			required: true,
 		},
-		tourdate: {
-			type: Date,
+		tourDate: {
+			type: String,
 		},
-		packageOptions: {},
-		inclusions: [
-			{
-				type: String,
-			},
-		],
-		exclusions: [
-			{
-				type: String,
-			},
-		],
 		additionalInfo: [
 			{
 				type: String,
@@ -79,23 +64,9 @@ const tourInfoSchema = new mongoose.Schema(
 				trim: true,
 			},
 		],
-		travelTips: {
-			type: String,
-		},
 		maxGroupSize: {
 			type: Number,
 			required: true,
-		},
-		reviews: [
-			{
-				type: ObjectId,
-				ref: "reviews",
-			},
-		],
-		status: {
-			type: String,
-			default: "pending",
-			enum: ["Booked", "Canceled"],
 		},
 	},
 	{
