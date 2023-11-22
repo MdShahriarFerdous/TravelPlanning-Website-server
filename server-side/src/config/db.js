@@ -8,7 +8,7 @@ const {
 const databaseConnection = () => {
 	mongoose.set("strictQuery", false);
 	mongoose
-		.connect(MongoDBAtlasConnection)
+		.connect(MongoDBConnectionPort)
 		.then(() => {
 			console.log("MongoDB connected!!");
 		})
