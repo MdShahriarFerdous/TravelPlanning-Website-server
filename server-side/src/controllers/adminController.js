@@ -60,7 +60,6 @@ exports.adminLogin = async (req, res, next) => {
 
 
 // admin get all users
-
 exports.getAllUsers = async (req, res, next) => {
     try {
 
