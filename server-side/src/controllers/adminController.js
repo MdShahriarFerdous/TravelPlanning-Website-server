@@ -1,7 +1,7 @@
 const { comparePassword } = require("../helpers/hashPass");
 const { jwtSecretKey } = require("../../secrets");
 const { createJsonWebToken } = require("../helpers/jsonWebToken");
-const User = require("../models/userModel");
+const User = require("../models/usermodel/userModel");
 require("dotenv").config();
 
 
