@@ -36,3 +36,6 @@ exports.requireSignIn = async (req, res, next) => {
 // 		res.json(error.message);
 // 	}
 // };
+
+const name = "hello";
+console.log(name);
