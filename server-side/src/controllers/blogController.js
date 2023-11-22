@@ -123,6 +123,37 @@ const blogController = {
       console.error(error.message);
     }
   },
+  // List All Blog Categories
+  blogCategoriesList: async (req, res, next) => {
+    try {
+      const pageSize = Number(20); // Number of items per page
+      const page = Number(req.query.pageNumber) || 1;
+
+      const keyword = req.query.keyword
+        ? {
+            $or: [{ title: { $regex: req.query.keyword, $options: "i" } }],
+          }
+        : {};
+
+      const count = await BlogCategory.countDocuments({ ...keyword });
+      const totalPages = Math.ceil(count / pageSize);
+
+      const blogCategories = await BlogCategory.find({ ...keyword })
+        .limit(pageSize)
+        .skip(pageSize * (page - 1));
+
+      res.status(200).json({
+        blogCategories,
+        page,
+        totalPages,
+        count,
+        itemsPerPage: pageSize,
+      });
+    } catch (error) {
+      next(error);
+      console.error(error.message);
+    }
+  },
   // User Specific Blogs List
   UserSpecificBlogs: async (req, res, next) => {
     try {
@@ -158,11 +189,15 @@ const blogController = {
       console.error(error.message);
     }
   },
-  // Update a blog by Id
+  // Update a Blog by Id
   updateBlog: async (req, res, next) => {
     try {
       const { blogId } = req.params;
-      const { title: newTitle, details: newDetails } = req.body;
+      const {
+        title: newTitle,
+        details: newDetails,
+        status: newStatus,
+      } = req.body;
       const { thumbnailImage: newThumbnailImage, coverImage: newCoverImage } =
         req.files || {};
       const updatedBy = req.user._id;
@@ -172,13 +207,18 @@ const blogController = {
       if (!oldBlogInfo) {
         return res.json({ error: "Blog Not Found" });
       }
-      const { author, title, details, thumbnailImage, coverImage } =
+      const { author, title, details, thumbnailImage, coverImage, status } =
         oldBlogInfo || {};
       const updatedBlogInfo = {};
 
       // Blog author update should be by author only
       if (author.toString() !== updatedBy) {
         return res.json({ error: "You are not authorize to update the Blog" });
+      }
+
+      // Blog Status validation
+      if (newStatus && newStatus !== status) {
+        updatedBlogInfo.status = newStatus;
       }
 
       // Blog Title validation
@@ -244,7 +284,44 @@ const blogController = {
       console.error(error.message);
     }
   },
-  // Delete blog by Id
+  // Update a Blog Category by Id
+  updateBlogCategory: async (req, res, next) => {
+    try {
+      const { blogCategoryId } = req.params;
+      const { title } = req.body;
+
+      // Check if Blog Category Title exists
+      const blogCategoryTitle = await BlogCategory.findOne({ title });
+      if (blogCategoryTitle) {
+        return res.json({
+          error: "Blog Category Title must be Unique",
+        });
+      }
+
+      const updatedBlogCategory = await BlogCategory.findByIdAndUpdate(
+        blogCategoryId,
+        { title },
+        { new: true }
+      );
+
+      if (!updatedBlogCategory) {
+        return res.json({
+          error: "Blog Category Not Updated",
+        });
+      }
+
+      // generate response
+      res.status(200).json({
+        status: "Success",
+        message: "Blog Category is Updated",
+        data: updatedBlogCategory,
+      });
+    } catch (error) {
+      next(error);
+      console.error(error.message);
+    }
+  },
+  // Delete Blog by Id
   deleteBlog: async (req, res, next) => {
     try {
       const { blogId } = req.params;
@@ -272,6 +349,45 @@ const blogController = {
         data: {
           deletedBlogId: blogId,
         },
+      });
+    } catch (error) {
+      next(error);
+      console.error(error.message);
+    }
+  },
+  // Delete Blog Category by Id
+  deleteBlogCategory: async (req, res, next) => {
+    try {
+      const { blogCategoryId } = req.params;
+
+      // Deleting the Images from the Location
+      await BlogCategory.findByIdAndDelete(blogCategoryId);
+      res.status(200).json({
+        status: "Success",
+        message: "Blog Category is Deleted Successfully",
+        data: {
+          deletedBlogCategoryId: blogCategoryId,
+        },
+      });
+    } catch (error) {
+      next(error);
+      console.error(error.message);
+    }
+  },
+  // Update Blog Categories List of a Blog
+  updateBlogCategoryRelation: async (req, res, next) => {
+    try {
+      const { blogId } = req.params;
+      const { blogCategoryId } = req.body;
+
+      const updatedBlog = await Blog.findByIdAndUpdate(blogId, {
+        $addToSet: { categories: blogCategoryId },
+      });
+
+      res.status(200).json({
+        status: "Success",
+        message: "Blog Categories of a Blog is Updated",
+        data: updatedBlog,
       });
     } catch (error) {
       next(error);

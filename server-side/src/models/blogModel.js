@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { defaultImagePath } = require("../../secrets");
 
 const blogSchema = mongoose.Schema(
   {
@@ -26,12 +25,11 @@ const blogSchema = mongoose.Schema(
     },
     thumbnailImage: {
       type: String,
-      default: defaultImagePath,
       required: [true, "Blog Thumbnail Image is required"],
     },
     coverImage: {
       type: String,
-      default: defaultImagePath,
+      required: [true, "Blog Cover Image is required"],
     },
     details: {
       type: String,
