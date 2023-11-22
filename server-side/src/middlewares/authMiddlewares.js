@@ -23,19 +23,18 @@ exports.requireSignIn = async (req, res, next) => {
 	}
 };
 
-// exports.isAdmin = async (req, res, next) => {
-// 	try {
-// 		const user = await User.findById(req.user._id);
+exports.isAdmin = async (req, res, next) => {
+	try {
+		
+		const user = await User.findById(req.user._id);
 
-// 		if (user.role === false) {
-// 			return res.status(401).send("Unauthorized");
-// 		} else {
-// 			next();
-// 		}
-// 	} catch (error) {
-// 		res.json(error.message);
-// 	}
-// };
+		if (user.isAdmin !== true) {
+			return res.status(401).send("Unauthorized");
+		} else {
+			next();
+		}
+	} catch (error) {
+		res.json(error.message);
+	}
+};
 
-const name = "hello";
-console.log(name);
