@@ -9,7 +9,7 @@ require("dotenv").config();
 
 
 // admin login
-exports.adminLogin = async (req, res) => {
+exports.adminLogin = async (req, res, next) => {
     try {
         // destructure email,password,loginCode from req.body
         const {email, password, loginCode} = req.body;
@@ -64,6 +64,7 @@ exports.adminLogin = async (req, res) => {
 exports.getAllUsers = async (req, res, next) => {
     try {
 
+        // retrieve all users with isAdmin set to false
         const users = await User.find({isAdmin: false});
 
         res.status(200).json({ status: "success", users });
@@ -79,16 +80,49 @@ exports.getAllUsers = async (req, res, next) => {
 // admin get user by id
 exports.getUserById = async (req, res, next) => {
     try {
+
         const { userId } = req.params;
+        
+        // find the user
         const user = await User.findById(userId);
 
-        if (!user) {
+        // check user is not found or is an admin (admin cannot be deleted)
+        if (!user || user.isAdmin == true) {
             return res.status(404).json({ status: "error", message: "User not found" });
         }
 
         res.status(200).json({ status: "success", user });
     } catch (error) {
+
         next(error);
         console.log(error.message);
     }
 };
+
+// delete user by id
+exports.deleteUserById = async (req, res, next) => {
+    try {
+       
+        const {userId} = req.params;
+
+        const user = await User.findById(userId);
+
+        if (!user || user.isAdmin == true) {
+            return res.status(404).json({ status: "error", message: "User not found" });
+        }
+
+        // delete the user by ID
+        await User.findByIdAndDelete(userId);
+
+        res.status(200).json({ status: "success", message: "User deleted successfully" });
+
+    } catch (error) {
+
+        next(error)
+        console.log(error.message)
+
+    }
+}
+
+
+
