@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/userModel");
 const { jwtSecretKey } = require("../../secrets");
 
 exports.requireSignIn = async (req, res, next) => {
@@ -23,18 +22,15 @@ exports.requireSignIn = async (req, res, next) => {
 	}
 };
 
-exports.isAdmin = async (req, res, next) => {
-	try {
-		
-		const user = await User.findById(req.user._id);
-
-		if (user.isAdmin !== true) {
-			return res.status(401).send("Unauthorized");
-		} else {
-			next();
-		}
-	} catch (error) {
-		res.json(error.message);
-	}
-};
-
+<<<<<<< HEAD
+// 		if (user.isAdmin === false) {
+// 			return res.status(401).send("Unauthorized");
+// 		} else {
+// 			next();
+// 		}
+// 	} catch (error) {
+// 		res.json(error.message);
+// 	}
+// };
+=======
+>>>>>>> development

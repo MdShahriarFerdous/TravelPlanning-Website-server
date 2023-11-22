@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { defaultImagePath } = require("../../secrets");
+const { defaultImagePath } = require("../../../secrets");
 const { ObjectId } = mongoose.Schema;
 
 const userProfileSchema = new mongoose.Schema(

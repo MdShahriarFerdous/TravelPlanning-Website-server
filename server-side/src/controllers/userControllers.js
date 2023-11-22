@@ -2,9 +2,9 @@ const { jwtSecretKey, clientURL } = require("../../secrets");
 const { hashPassword, comparePassword } = require("../helpers/hashPass");
 const { createJsonWebToken } = require("../helpers/jsonWebToken");
 const { sendEmail } = require("../helpers/sendEmail");
-const User = require("../models/userModel");
+const User = require("../models/usermodel/userModel");
 const jwt = require("jsonwebtoken");
-const UserProfile = require("../models/userProfileModel");
+const UserProfile = require("../models/usermodel/userProfileModel");
 
 //send activation link to register user
 exports.userRegister = async (req, res, next) => {
@@ -12,15 +12,15 @@ exports.userRegister = async (req, res, next) => {
 		const { username, email, password } = req.body;
 
 		//validation
-		if (!username?.trim()) {
-			return res.json({ error: "User name is required" });
+		if (!username.trim() || username.length < 6 || username.length > 12) {
+			return res.json({ error: "User name error" });
 		}
 
 		if (!email) {
 			return res.json({ error: "Email is required" });
 		}
 
-		if (!password?.trim() || password.length < 6) {
+		if (!password.trim() || password.length < 6) {
 			return res.json({
 				error: "Password must be at least 6 characters long",
 			});
@@ -73,14 +73,31 @@ exports.userVerify = async (req, res, next) => {
 		if (!decoded) {
 			return res.json({ error: "Unable to verify user!" });
 		}
-		// console.log(decoded);
+
 		//check if email exist or not
 		const existingEmail = await User.findOne({ email: decoded.email });
 		if (existingEmail) {
 			return res.json({ error: "Email is taken" });
 		}
+
+		// Check username length
+		if (
+			!decoded.username ||
+			decoded.username.length < 6 ||
+			decoded.username.length > 12
+		) {
+			return res.status(400).json({ error: "Invalid username length" });
+		}
+
+		if (decoded.password.length < 6) {
+			return res
+				.status(400)
+				.json({ error: "Password length must be 6 characters long!" });
+		}
+
 		//hash password
 		const hashedPassword = await hashPassword(decoded.password);
+
 		const registerUser = await new User({
 			username: decoded.username,
 			email: decoded.email,
