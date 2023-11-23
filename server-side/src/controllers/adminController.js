@@ -98,30 +98,29 @@ exports.getUserById = async (req, res, next) => {
     }
 };
 
-// delete user by id
-exports.deleteUserById = async (req, res, next) => {
+// update user by id
+exports.updateUserById = async (req, res, next) => {
     try {
-       
-        const {userId} = req.params;
+        const { userId } = req.params;
 
+        // find the user by id
         const user = await User.findById(userId);
 
+        // check if the user exists
         if (!user || user.isAdmin == true) {
             return res.status(404).json({ status: "error", message: "User not found" });
         }
 
-        // delete the user by ID
-        await User.findByIdAndDelete(userId);
+        // update the user (banned)
+        await User.findByIdAndUpdate(user._id, { isBanned: true });
 
-        res.status(200).json({ status: "success", message: "User deleted successfully" });
+        res.status(200).json({ status: "success", message: "User banned successfully" });
 
     } catch (error) {
-
-        next(error)
-        console.log(error.message)
-
+        next(error);
+        console.log(error.message);
     }
-}
+};
 
 
 
