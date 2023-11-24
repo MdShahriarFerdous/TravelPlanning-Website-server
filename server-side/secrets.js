@@ -11,6 +11,7 @@ const jwtSecretKey =
 const smtpUsername = process.env.SMTP_USERNAME;
 const smtpPassword = process.env.SMTP_PASSWORD;
 const clientURL = process.env.CLIENT_URL;
+const loginCodeAdmin = process.env.ADMIN_LOGIN_CODE;
 
 module.exports = {
 	ServerPort,
@@ -21,4 +22,5 @@ module.exports = {
 	smtpPassword,
 	clientURL,
 	MongoDBAtlasConnection,
+	loginCodeAdmin,
 };

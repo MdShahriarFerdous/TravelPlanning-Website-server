@@ -8,6 +8,7 @@ const TourInfo = require("../models/tourmodel/tourInfoModel");
 const TourPersonPrice = require("../models/tourmodel/tourPriceModel");
 const VehiclePrice = require("../models/tourmodel/vehiclePriceModel");
 const TourBooking = require("../models/tourmodel/tourBookingModel");
+const TourListCard = require("../models/tourmodel/tourListCardModel");
 
 //create foodmenu for particular tour
 exports.tourFoodMenu = async (req, res, next) => {
@@ -157,6 +158,7 @@ exports.tourPackageOptions = async (req, res, next) => {
 	}
 };
 
+//create tour info
 exports.tourInfo = async (req, res, next) => {
 	try {
 		const {
@@ -195,41 +197,10 @@ exports.tourInfo = async (req, res, next) => {
 			maxGroupSize,
 		}).save();
 
-		const description = await TourDescription.aggregate([
-			{
-				$match: { tourId: { $eq: `${tourId}` } },
-			},
-		]);
-		const foodmenu = await TourFood.aggregate([
-			{
-				$match: { tourId: { $eq: `${tourId}` } },
-			},
-		]);
-		const packages = await PackageOption.aggregate([
-			{
-				$match: { tourId: { $eq: `${tourId}` } },
-			},
-		]);
-		const includeExclude = await IncluAndExclu.aggregate([
-			{
-				$match: { tourId: { $eq: `${tourId}` } },
-			},
-		]);
-		const tourTips = await TourTip.aggregate([
-			{
-				$match: { tourId: { $eq: `${tourId}` } },
-			},
-		]);
-
 		res.status(201).json({
 			status: "Success",
 			message: "Tour description created",
 			createdTourInfo,
-			description,
-			foodmenu,
-			packages,
-			includeExclude,
-			tourTips,
 		});
 	} catch (error) {
 		console.log(error);
@@ -237,6 +208,7 @@ exports.tourInfo = async (req, res, next) => {
 	}
 };
 
+//create persons payment chart by ages
 exports.personPayChart = async (req, res, next) => {
 	try {
 		const { tourId, packageName, adultPay, childrenPay } = req.body;
@@ -262,6 +234,7 @@ exports.personPayChart = async (req, res, next) => {
 	}
 };
 
+//create vehicles payment chart
 exports.vehiclePayChart = async (req, res, next) => {
 	try {
 		const {
@@ -302,6 +275,7 @@ exports.vehiclePayChart = async (req, res, next) => {
 	}
 };
 
+//booking a tour
 exports.tourBooking = async (req, res, next) => {
 	try {
 		const userId = req.user;
@@ -405,6 +379,149 @@ exports.tourBooking = async (req, res, next) => {
 			message: "Tour description created",
 			createdBooking,
 			totalCost,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+//get a tourInfo by id
+exports.tourByID = async (req, res, next) => {
+	try {
+		const { tourInfoId } = req.params;
+
+		const getTourInfo = await TourInfo.findById(tourInfoId);
+		const tourId = getTourInfo.tourId;
+
+		const description = await TourDescription.aggregate([
+			{
+				$match: { tourId: { $eq: `${tourId}` } },
+			},
+		]);
+		const foodmenu = await TourFood.aggregate([
+			{
+				$match: { tourId: { $eq: `${tourId}` } },
+			},
+		]);
+		const packages = await PackageOption.aggregate([
+			{
+				$match: { tourId: { $eq: `${tourId}` } },
+			},
+		]);
+		const includeExclude = await IncluAndExclu.aggregate([
+			{
+				$match: { tourId: { $eq: `${tourId}` } },
+			},
+		]);
+		const tourTips = await TourTip.aggregate([
+			{
+				$match: { tourId: { $eq: `${tourId}` } },
+			},
+		]);
+
+		res.status(200).json({
+			status: "Success",
+			message: "Tour description created",
+			getTourInfo,
+			description,
+			foodmenu,
+			packages,
+			includeExclude,
+			tourTips,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+//create tour card
+exports.tourCard = async (req, res, next) => {
+	try {
+		const {
+			tourInfoId,
+			tourMatchingCode,
+			title,
+			image,
+			locationName,
+			startingPrice,
+			durations,
+			maxPeople,
+			notes,
+		} = req.body;
+
+		const createdTourCard = await new TourListCard({
+			tourInfoId,
+			tourMatchingCode,
+			title,
+			image,
+			locationName,
+			startingPrice,
+			durations,
+			maxPeople,
+			notes,
+		}).save();
+
+		res.status(200).json({
+			status: "Success",
+			message: "Tour description created",
+			createdTourCard,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+//show all matching code tour cards after clicking on thumbnail
+exports.matchedLocationTourLists = async (req, res, next) => {
+	try {
+		const { tourMatchingCode, searchKeyword, pageNo, perPage } = req.params;
+		const pageNumber = Number(pageNo) || 1;
+		const perPageNumber = Number(perPage) || 10;
+		const skipRows = (pageNumber - 1) * perPageNumber;
+
+		const { checked } = req.body;
+
+		// Match query for tourMatchingCode
+		const matchQuery = { tourMatchingCode: { $eq: tourMatchingCode } };
+
+		// Build the search query
+		let searchQuery = {};
+		if (searchKeyword !== "0") {
+			const searchRegex = { $regex: searchKeyword, $options: "i" };
+			searchQuery.$or = [
+				{ title: searchRegex },
+				{ locationName: searchRegex },
+				{ durations: searchRegex },
+				{ maxPeople: searchRegex },
+			];
+		}
+
+		// Combine match and search queries
+		const combinedQuery = { $and: [matchQuery, searchQuery] };
+
+		if (checked.length > 0) {
+			// Assuming startingPrice is a numeric field
+			combinedQuery.$and.push({
+				startingPrice: { $gte: checked[0], $lte: checked[1] },
+			});
+		}
+
+		// Execute aggregation pipeline
+		const toursCardLists = await TourListCard.aggregate([
+			{ $match: combinedQuery },
+			{ $skip: skipRows },
+			{ $limit: perPageNumber },
+		]);
+
+		// Get total count for pagination
+		const totalCount = await TourListCard.countDocuments(combinedQuery);
+
+		res.status(200).json({
+			total: totalCount,
+			tourCardData: toursCardLists,
 		});
 	} catch (error) {
 		console.log(error);
