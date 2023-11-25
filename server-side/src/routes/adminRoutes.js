@@ -22,17 +22,7 @@ router.get(
 	adminController.getUserById
 );
 
-<<<<<<< HEAD
-// delete user by id
-router.delete(
-	"/admin/delete-user-by-id/:userId",
-	requireSignIn,
-	isAdmin,
-	adminController.deleteUserById
-);
-=======
 // update user by id
 router.put("/admin/ban-user/:userId", requireSignIn, adminController.updateUserById)
->>>>>>> development
 
 module.exports = router;
