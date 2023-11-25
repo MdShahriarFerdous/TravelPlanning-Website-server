@@ -21,20 +21,26 @@ exports.createitinerary = async (req, res, next) => {
       }
 
       let itinerary = [];
-      let day = 1;
+      let placeIndex = 0;
 
-      for (let i = 1; i <= tripLength; i++) {
-        itinerary[day] = [];
-
-        for (let j = 0; j < places.length; j++) {
-          itinerary[day].push(places[j].name);
+      for (let day = 1; day <= tripLength; day++) {
+        let dailyPlaces = [];
+        for (let count = 1; count <= 3; count++) {
+          if (placeIndex < places.length) {
+            dailyPlaces.push(places[placeIndex].name);
+            placeIndex++;
+          } else {
+            break; // If all places are covered
+          }
         }
-
-        day++;
+        itinerary.push({ [`Day ${day}`]: dailyPlaces });
+        if (placeIndex >= places.length) {
+          break; // If all places are covered before trip ends
+        }
       }
-      res.status(200).json({
-        success: true,
-        message: itinerary,
+
+      res.send({
+        itinerary,
       });
     } else {
       res.status(200).json({
