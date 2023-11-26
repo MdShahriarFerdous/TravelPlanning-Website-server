@@ -23,6 +23,7 @@ module.exports = {
 	smtpPassword,
 	clientURL,
 	MongoDBAtlasConnection,
+	loginCodeAdmin,
 	defaultPageSize,
-	jwtExpirationTime
+	jwtExpirationTime,
 };

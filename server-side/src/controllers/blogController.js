@@ -54,7 +54,7 @@ const blogController = {
       // generate response
       res.status(200).json({
         status: "Success",
-        message: "Please Wait for the Admin to approve your Blog",
+        message: "Please Wait for the Admin to approve your Post",
         data: blog,
       });
     } catch (error) {
@@ -200,7 +200,6 @@ const blogController = {
       } = req.body;
       const { thumbnailImage: newThumbnailImage, coverImage: newCoverImage } =
         req.files || {};
-      const updatedBy = req.user._id;
 
       // Retrieve Old Blog's Info
       const oldBlogInfo = await Blog.findOne({ _id: blogId });
@@ -210,11 +209,6 @@ const blogController = {
       const { author, title, details, thumbnailImage, coverImage, status } =
         oldBlogInfo || {};
       const updatedBlogInfo = {};
-
-      // Blog author update should be by author only
-      if (author.toString() !== updatedBy) {
-        return res.json({ error: "You are not authorize to update the Blog" });
-      }
 
       // Blog Status validation
       if (newStatus && newStatus !== status) {
@@ -325,19 +319,13 @@ const blogController = {
   deleteBlog: async (req, res, next) => {
     try {
       const { blogId } = req.params;
-      const deletedBy = req.user._id;
 
       // Retrieve Old Blog's Info
       const oldBlogInfo = await Blog.findOne({ _id: blogId });
       if (!oldBlogInfo) {
         return res.json({ error: "Blog Not Found" });
       }
-      const { author, thumbnailImage, coverImage } = oldBlogInfo || {};
-
-      // Blog author delete should be by author only
-      if (author.toString() !== deletedBy) {
-        return res.json({ error: "You are not authorize to Delete the Blog" });
-      }
+      const { thumbnailImage, coverImage } = oldBlogInfo || {};
 
       // Deleting the Images from the Location
       await deleteSrc(thumbnailImage);

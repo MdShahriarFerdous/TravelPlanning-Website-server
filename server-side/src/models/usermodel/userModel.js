@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Schema;
+
+//login count--> loginTry:{}
+//isLocked---> for admin
+
+//isAdmin, email, name, profile image--> user login res + token
+//isAdmin, email, name, profile image, loginTry---admin login res + token
 
 const userSchema = new mongoose.Schema(
 	{
@@ -28,13 +33,21 @@ const userSchema = new mongoose.Schema(
 		password: {
 			type: String,
 			required: [true, "Password is required"],
-			minLength: [6, "Password Length should be atleast 6 characters"],
+			minLength: [6, "Password Length should be at least 6 characters"],
 		},
 		isAdmin: {
 			type: Boolean,
 			default: false,
 		},
 		isBanned: {
+			type: Boolean,
+			default: false,
+		},
+		isLoginTry: {
+			type: Number,
+			default: 0,
+		},
+		isLocked: {
 			type: Boolean,
 			default: false,
 		},

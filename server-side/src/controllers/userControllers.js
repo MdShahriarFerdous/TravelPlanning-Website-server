@@ -1,4 +1,4 @@
-const { jwtSecretKey, clientURL } = require("../../secrets");
+const { jwtSecretKey, clientURL, jwtExpirationTime } = require("../../secrets");
 const { hashPassword, comparePassword } = require("../helpers/hashPass");
 const { createJsonWebToken } = require("../helpers/jsonWebToken");
 const { sendEmail } = require("../helpers/sendEmail");
@@ -36,7 +36,7 @@ exports.userRegister = async (req, res, next) => {
 		const token = createJsonWebToken(
 			{ username, email, password },
 			jwtSecretKey,
-			"1d"
+			jwtExpirationTime
 		);
 
 		//Create Email Data
@@ -89,7 +89,7 @@ exports.userVerify = async (req, res, next) => {
 			return res.status(400).json({ error: "Invalid username length" });
 		}
 
-		if (decoded.password.length < 6) {
+		if (!decoded.password || decoded.password.length < 6) {
 			return res
 				.status(400)
 				.json({ error: "Password length must be 6 characters long!" });
@@ -103,13 +103,15 @@ exports.userVerify = async (req, res, next) => {
 			email: decoded.email,
 			password: hashedPassword,
 		}).save();
+
+		await UserProfile.create({ user: registerUser._id });
 		// console.log(registerUser);
 
 		//generate token for user
 		const createdToken = createJsonWebToken(
 			{ _id: registerUser._id },
 			jwtSecretKey,
-			"1d"
+			jwtExpirationTime
 		);
 
 		res.status(201).json({
@@ -137,7 +139,7 @@ exports.userLogin = async (req, res, next) => {
 	try {
 		const { email, password } = req.body;
 
-		// 2. all fields require validation
+		// 1. all fields require validation
 		if (!email) {
 			return res.json({ error: "Email is required" });
 		}
@@ -146,27 +148,43 @@ exports.userLogin = async (req, res, next) => {
 				error: "Password must be at least 6 characters long",
 			});
 		}
-		// 3. check if email is taken
+		// 2. check if email is taken
 		const user = await User.findOne({ email });
 		if (!user) {
 			return res.json({ error: "User account not found" });
 		}
 
-		// 4. compare password
+		// 3. compare password
 		const match = await comparePassword(password, user.password);
 		if (!match) {
 			return res.json({ error: "Invalid password" });
+		}
+
+		//5. is he banned?
+		if (user.isBanned === true) {
+			return res.json({
+				error: "Sorry! You are banned, talk with admin",
+			});
 		}
 
 		//generate token for user
 		const createToken = createJsonWebToken(
 			{ _id: user._id },
 			jwtSecretKey,
-			"1h"
+			jwtExpirationTime
 		);
+
+		const userProfile = await UserProfile.findOne({ user: user._id });
+
 		res.status(200).json({
 			status: "success",
 			message: "Welcome again",
+			user: {
+				username: user.username,
+				email: user.email,
+				isAdmin: user.isAdmin,
+				image: userProfile.image,
+			},
 			createToken,
 		});
 	} catch (error) {
@@ -223,6 +241,41 @@ exports.updateProfile = async (req, res, next) => {
 			status: "Success",
 			message: "Your data has been saved!",
 			profile,
+		});
+	} catch (error) {
+		next(error);
+		console.log(error.message);
+	}
+};
+
+//update user profile
+exports.updateUser = async (req, res, next) => {
+	try {
+		const { username, password } = req.body;
+		const user = User.findById(req.user._id);
+
+		if (password && password.length < 6) {
+			return res.json({
+				error: "Password must be at least 6 characters long",
+			});
+		}
+		const hashedPass = password ? await hashPassword(password) : undefined;
+
+		const updated = await User.findByIdAndUpdate(
+			req.user._id,
+			{
+				username: username || user.username,
+				password: hashedPass || user.password,
+			},
+			{ new: true }
+		);
+
+		updated.password = undefined; // so that in the response password will not be shown.
+
+		res.status(201).json({
+			status: "Success",
+			message: "Your data updated!",
+			updated,
 		});
 	} catch (error) {
 		next(error);
