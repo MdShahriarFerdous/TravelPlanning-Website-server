@@ -4,6 +4,7 @@ const {
 	userVerify,
 	updateProfile,
 	userLogin,
+	updateUser,
 } = require("../controllers/userControllers");
 const { requireSignIn } = require("../middlewares/authMiddlewares");
 const { Upload } = require("../middlewares/imageMiddleware");
@@ -20,5 +21,8 @@ router.post("/user-login", userLogin);
 
 //update user profile
 router.post("/update-profile", requireSignIn, Upload, updateProfile);
+
+//update user
+router.post("/update-user", requireSignIn, updateUser);
 
 module.exports = router;
