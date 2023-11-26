@@ -26,48 +26,6 @@ const userProfileSchema = new mongoose.Schema(
 			trim: true,
 			default: "xxx-xxx-xxx-xx",
 		},
-		// hotelBookings: [
-		// 	{
-		// 		type: ObjectId,
-		// 		ref: "",
-		// 		default: [],
-		// 	},
-		// ],
-		// flightBookings: [
-		// 	{
-		// 		type: ObjectId,
-		// 		ref: "",
-		// 		default: [],
-		// 	},
-		// ],
-		// blogs: [
-		// 	{
-		// 		type: ObjectId,
-		// 		ref: "",
-		// 		default: [],
-		// 	},
-		// ],
-		// bookmarks: [
-		// 	{
-		// 		type: ObjectId,
-		// 		ref: "",
-		// 		default: [],
-		// 	},
-		// ],
-		// itineraries: [
-		// 	{
-		// 		type: ObjectId,
-		// 		ref: "",
-		// 		default: [],
-		// 	},
-		// ],
-		// reviews: [
-		// 	{
-		// 		type: ObjectId,
-		// 		ref: "",
-		// 		default: [],
-		// 	},
-		// ],
 	},
 	{
 		timestamps: true,

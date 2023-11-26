@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Schema;
+
+//login count--> loginTry:{}
+//isLocked---> for admin
+
+//isAdmin, email, name, profile image--> user login res + token
+//isAdmin, email, name, profile image, loginTry---admin login res + token
 
 const userSchema = new mongoose.Schema(
 	{
@@ -35,6 +40,14 @@ const userSchema = new mongoose.Schema(
 			default: false,
 		},
 		isBanned: {
+			type: Boolean,
+			default: false,
+		},
+		isLoginTry: {
+			type: Number,
+			default: 0,
+		},
+		isLocked: {
 			type: Boolean,
 			default: false,
 		},

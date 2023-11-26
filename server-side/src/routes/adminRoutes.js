@@ -24,9 +24,16 @@ router.get(
 
 // update user by id
 router.put(
+<<<<<<< HEAD
+	"/admin/ban-user/:userId",
+	requireSignIn,
+	isAdmin,
+	adminController.updateUserById
+=======
   "/admin/ban-user/:userId",
   requireSignIn,
   adminController.updateUserById
+>>>>>>> development
 );
 
 module.exports = router;

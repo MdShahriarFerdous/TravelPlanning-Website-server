@@ -117,7 +117,7 @@ exports.tourIncludeExclude = async (req, res, next) => {
 		}).save();
 		res.status(201).json({
 			status: "Success",
-			message: "Tour description created",
+			message: "Tour inclusion and exclusion created",
 			createdIncludeExclude,
 		});
 	} catch (error) {
@@ -149,7 +149,7 @@ exports.tourPackageOptions = async (req, res, next) => {
 
 		res.status(201).json({
 			status: "Success",
-			message: "Tour description created",
+			message: "Tour Package created",
 			createdPackageOption,
 		});
 	} catch (error) {
@@ -199,7 +199,7 @@ exports.tourInfo = async (req, res, next) => {
 
 		res.status(201).json({
 			status: "Success",
-			message: "Tour description created",
+			message: "Tour info created",
 			createdTourInfo,
 		});
 	} catch (error) {
@@ -266,7 +266,7 @@ exports.vehiclePayChart = async (req, res, next) => {
 
 		res.status(201).json({
 			status: "Success",
-			message: "Tour description created",
+			message: "Tour vehicle price chart created",
 			createdVehiclePriceData,
 		});
 	} catch (error) {
@@ -376,7 +376,7 @@ exports.tourBooking = async (req, res, next) => {
 
 		res.status(201).json({
 			status: "Success",
-			message: "Tour description created",
+			message: "Tour booking submitted",
 			createdBooking,
 			totalCost,
 		});
@@ -422,7 +422,7 @@ exports.tourByID = async (req, res, next) => {
 
 		res.status(200).json({
 			status: "Success",
-			message: "Tour description created",
+			message: "Here is a tour overview",
 			getTourInfo,
 			description,
 			foodmenu,
@@ -465,7 +465,7 @@ exports.tourCard = async (req, res, next) => {
 
 		res.status(200).json({
 			status: "Success",
-			message: "Tour description created",
+			message: "Tour list card created",
 			createdTourCard,
 		});
 	} catch (error) {
@@ -522,6 +522,23 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 		res.status(200).json({
 			total: totalCount,
 			tourCardData: toursCardLists,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+//create tour thumbnail by admin
+exports.tourThumbnail = async (req, res, next) => {
+	try {
+		const { tourMatchingCode, image, tourName } = req.body;
+		if (!tourMatchingCode || !image || !tourName) {
+			return res.json({ error: "Please provide all the " });
+		}
+		res.status(201).json({
+			status: "Success",
+			message: "Tour thumbnail created",
 		});
 	} catch (error) {
 		console.log(error);
