@@ -1,5 +1,9 @@
 const { comparePassword } = require("../helpers/hashPass");
-const { jwtSecretKey, loginCodeAdmin } = require("../../secrets");
+const {
+	jwtSecretKey,
+	loginCodeAdmin,
+	jwtExpirationTime,
+} = require("../../secrets");
 const { createJsonWebToken } = require("../helpers/jsonWebToken");
 const User = require("../models/usermodel/userModel");
 require("dotenv").config();
@@ -36,21 +40,34 @@ exports.adminLogin = async (req, res, next) => {
 		}
 
 		// Update isAdmin field
-		const updatedAdmin = await User.findByIdAndUpdate(user._id, {
-			isAdmin: true,
-		});
+		const updatedAdmin = await User.findByIdAndUpdate(
+			user._id,
+			{
+				isAdmin: true,
+			},
+			{ new: true }
+		);
+
+		const adminProfile = await UserProfile.findOne({ user: user._id });
 
 		//generate token for admin
 		const createdToken = createJsonWebToken(
 			{ _id: user._id, isAdmin: true },
 			jwtSecretKey,
-			"1d"
+			jwtExpirationTime
 		);
 
 		res.status(200).json({
 			status: "success",
 			message: "Admin login successfully",
 			createdToken,
+			admin: {
+				username: updatedAdmin.username,
+				email: updatedAdmin.email,
+				isAdmin: updatedAdmin.isAdmin,
+				image: adminProfile.image,
+				isLoginTry: updatedAdmin.isLoginTry,
+			},
 		});
 	} catch (error) {
 		next(error);

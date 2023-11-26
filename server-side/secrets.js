@@ -25,5 +25,5 @@ module.exports = {
 	MongoDBAtlasConnection,
 	loginCodeAdmin,
 	defaultPageSize,
-	jwtExpirationTime
+	jwtExpirationTime,
 };
