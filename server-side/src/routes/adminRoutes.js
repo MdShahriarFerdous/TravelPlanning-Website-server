@@ -38,4 +38,5 @@ router.put(
 	adminController.updateBan
 );
 
+
 module.exports = router;
