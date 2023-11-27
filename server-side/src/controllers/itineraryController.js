@@ -1,4 +1,4 @@
-const locationModel = require("../models/locationModel");
+const locationModel = require("../models/LocationModel");
 const historicalPlacesModel = require("../models/historicalPlacesModel");
 const hotelModel = require("../models/hotelSchema");
 
