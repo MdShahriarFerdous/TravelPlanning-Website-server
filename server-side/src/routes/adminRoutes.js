@@ -23,6 +23,20 @@ router.get(
 );
 
 // update user by id
-router.put("/admin/ban-user/:userId", requireSignIn, adminController.updateUserById)
+router.put(
+	"/admin/lock-user/:userId",
+	requireSignIn,
+	isAdmin,
+	adminController.updateLock
+);
+
+// update user by id
+router.put(
+	"/admin/ban-user/:userId",
+	requireSignIn,
+	isAdmin,
+	adminController.updateBan
+);
+
 
 module.exports = router;
