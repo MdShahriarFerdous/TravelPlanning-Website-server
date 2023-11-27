@@ -1,5 +1,6 @@
 const locationModel = require("../models/locationModel");
 const historicalPlacesModel = require("../models/historicalPlacesModel");
+const hotelModel = require("../models/hotelSchema");
 
 exports.createitinerary = async (req, res, next) => {
   try {
@@ -20,6 +21,8 @@ exports.createitinerary = async (req, res, next) => {
         });
       }
 
+      let hotels = await hotelModel.find({ city: existingLocation.locationName });
+
       let itinerary = [];
       let placeIndex = 0;
 
@@ -39,8 +42,14 @@ exports.createitinerary = async (req, res, next) => {
         }
       }
 
-      res.send({
+      let result = {
+        hotels,
         itinerary,
+      };
+
+      res.status(200).json({
+        success: true,
+        result,
       });
     } else {
       res.status(200).json({
