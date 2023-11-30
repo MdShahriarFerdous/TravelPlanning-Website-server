@@ -39,12 +39,15 @@ exports.userRegister = async (req, res, next) => {
 			jwtExpirationTime
 		);
 
+		const encodedToken = encodeURIComponent(token);
+		const activationURL = `${clientURL}/user/activate/${encodedToken}`;
+
 		//Create Email Data
 		const emailData = {
 			email,
 			subject: "Account activation from Travello",
 			html: `<h2>Hello ${username} !</h2>
-						<h4>Please <a href="${clientURL}/user/activate/${token}" target="_blank">click here</a> to acctivate your account.</h4>`,
+						<h4>Please <a href="${activationURL}" target="_blank">click here</a> to acctivate your account.</h4>`,
 		};
 		//send email with nodemailer
 		await sendEmail(emailData);
