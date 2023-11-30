@@ -285,3 +285,31 @@ exports.updateUser = async (req, res, next) => {
 		console.log(error.message);
 	}
 };
+
+//get user detail
+exports.getUserInfo = async (req, res, next) => {
+	try {
+		// parsing user if from token
+		const userId = req.user._id;
+
+		// Check if User exists or not
+		let user = await User.findById(userId);
+		if (!user) {
+			return res.json({
+				error: "User Doesnt Exist",
+			});
+		}
+
+		// nullify user password
+		user.password = undefined;
+
+		//generate response
+		res.status(200).json({
+			status: "Success",
+			user,
+		});
+	} catch (error) {
+		next(error);
+		console.error(error.message);
+	}
+};

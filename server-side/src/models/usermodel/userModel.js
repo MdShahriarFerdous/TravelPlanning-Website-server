@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
 		password: {
 			type: String,
 			required: [true, "Password is required"],
-			minLength: [6, "Password Length should be atleast 6 characters"],
+			minLength: [6, "Password Length should be at least 6 characters"],
 		},
 		isAdmin: {
 			type: Boolean,
