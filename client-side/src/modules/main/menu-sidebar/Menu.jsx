@@ -2,7 +2,7 @@ const Menu = [
   {
     name: "Dashboard",
     icon: "fas fa-tachometer-alt nav-icon",
-    path: "/",
+    path: "/dashboard",
   },
   {
     name: "Users",

@@ -16,19 +16,9 @@ const Register = () => {
   useUser();
 
   const [customRetypeError, setCustomRetypeError] = useState(null);
-  const [isAuthLoading, setIsAuthLoading] = useState(false);
   const dispatch = useDispatch();
-  
+  const { loading, error, message } = useSelector((state) => state.auth);
 
-  const register = (data) => {
-    if (data.password !== data.passwordRetype) {
-      setCustomRetypeError("Password mismatch");
-      toast.error("Password mismatch");
-      return;
-    }
-    data.email = data.email.toLowerCase();
-    dispatch(registerUser(data));
-  };
   const { handleChange, values, handleSubmit, touched, errors } = useFormik({
     initialValues: {
       username: "",
@@ -48,11 +38,25 @@ const Register = () => {
         .max(30, "Must be 30 characters or less")
         .required("Required"),
     }),
-    onSubmit: (values) => {
-      register(values);
-      setIsAuthLoading(true);
+    onSubmit: async (data) => {
+      if (data.password !== data.passwordRetype) {
+        setCustomRetypeError("Password mismatch");
+        toast.error("Password mismatch");
+        return;
+      }
+      data.email = data.email.toLowerCase();
+      await dispatch(registerUser(data));
     },
   });
+
+  useEffect(() => {
+    if(error){
+      toast.error(error);
+    }
+    if(!!message){
+      toast.success(message);
+    }
+  }, [loading, error]);
 
   setWindowClass("hold-transition register-page");
 
@@ -174,7 +178,7 @@ const Register = () => {
 
               <div className="row">
                 <div className="col-12 m-auto">
-                  <PfButton type="submit" block disabled={isAuthLoading}>
+                  <PfButton type="submit" block disabled={loading}>
                     Register
                   </PfButton>
                 </div>

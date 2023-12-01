@@ -9,7 +9,6 @@ const MenuSidebar = () => {
   const sidebarSkin = useSelector((state) => state.ui.sidebarSkin);
   const menuItemFlat = useSelector((state) => state.ui.menuItemFlat);
   const menuChildIndent = useSelector((state) => state.ui.menuChildIndent);
-
   return (
     <aside className={`main-sidebar elevation-4 ${sidebarSkin}`}>
       <Link to="/" className="brand-link">
@@ -20,27 +19,9 @@ const MenuSidebar = () => {
           height={33}
           rounded
         />
-        <span className="brand-text font-weight-light">{ import.meta.env.VITE_PROJECT_NAME } Dashboard</span>
+        <span className="brand-text font-weight-light">{ import.meta.env.VITE_PROJECT_NAME } Admin</span>
       </Link>
       <div className="sidebar">
-        <div className="user-panel mt-3 pb-3 mb-3 d-flex">
-          <div className="image">
-            <UserImage
-              src={"/img/default-profile.png"}
-              fallbackSrc="/img/default-profile.png"
-              alt="User"
-              width={34}
-              height={34}
-              rounded
-            />
-          </div>
-          <div className="info">
-            <Link to="/profile" className="d-block">
-              {"admin@example.com"}
-            </Link>
-          </div>
-        </div>
-
         <nav className="mt-2" style={{ overflowY: "hidden" }}>
           <ul
             className={`nav nav-pills nav-sidebar flex-column${
