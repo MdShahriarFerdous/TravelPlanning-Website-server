@@ -6,6 +6,8 @@ const {
 } = require("../../secrets");
 const { createJsonWebToken } = require("../helpers/jsonWebToken");
 const User = require("../models/usermodel/userModel");
+const UserProfile = require("../models/usermodel/userProfileModel");
+
 require("dotenv").config();
 
 // admin login
@@ -18,26 +20,53 @@ exports.adminLogin = async (req, res, next) => {
 		if (!email) {
 			return res.json({ error: "Email is required" });
 		}
-		if (!password || password.length < 6) {
-			return res.json({
-				error: "Password must be at least 6 characters long",
-			});
+		if (!password) {
+			return res.json({ error: "Password is required" });
 		}
-		if (loginCode !== loginCodeAdmin) {
+		if (!loginCode) {
 			return res.json({ error: "Login Code is required" });
+		}
+		// check if login code is okay
+		if (loginCode !== loginCodeAdmin) {
+			return res.json({ error: "Login Code is mismatched" });
 		}
 
 		// check if email is taken
-		const user = await User.findOne({ email });
+		const user = await User.find({ email });
 		if (!user) {
 			return res.json({ error: "User account not found" });
 		}
 
-		// compare password
+		// check if the user is Locked
+		if (user.isLocked == true) {
+			return res.json({ error: "Your account is locked" });
+		}
+
+		// check if the user has reached the maximum login attempts
+		if (user.isLoginTry >= 5) {
+			// lock the user
+			await User.findByIdAndUpdate(user._id, { isLocked: true });
+
+			return res.json({
+				error: "Your account has been locked due to multiple login attempts",
+			});
+		}
+
+		// Compare password
 		const match = await comparePassword(password, user.password);
 		if (!match) {
-			return res.json({ error: "Invalid email or password" });
+			// increment the login attempt count
+			await User.findByIdAndUpdate(user._id, { $inc: { isLoginTry: 1 } });
+
+			return res.json({
+				error: `Invalid email or password, ${
+					5 - Number(user.isLoginTry)
+				} login attempts left`,
+			});
 		}
+
+		// reset login attempt count after successfully login
+		await User.findByIdAndUpdate(user._id, { isLoginTry: 0 });
 
 		// Update isAdmin field
 		const updatedAdmin = await User.findByIdAndUpdate(
@@ -110,8 +139,49 @@ exports.getUserById = async (req, res, next) => {
 	}
 };
 
-// update user by id
-exports.updateUserById = async (req, res, next) => {
+// update lock user by id
+exports.updateLock = async (req, res, next) => {
+	try {
+		const { userId } = req.params;
+		const { isLocked } = req.body;
+
+		// find the user by id
+		const user = await User.findById(userId);
+
+		if (!isLocked) {
+			return res
+				.status(404)
+				.json({ status: "error", message: "Invalid request" });
+		}
+
+		const lockStatus = isLocked === "true" ? true : false;
+
+		// check if the user exists
+		if (!user || user.isAdmin == true) {
+			return res
+				.status(404)
+				.json({ status: "error", message: "User not found" });
+		}
+
+		// update the user (locked)
+		await User.findByIdAndUpdate(user._id, { isLocked: lockStatus });
+
+		res.status(200).json({
+			status: "success",
+			message: `${
+				lockStatus
+					? "User account locked successfully"
+					: "User account unlocked successfully"
+			}`,
+		});
+	} catch (error) {
+		next(error);
+		console.log(error.message);
+	}
+};
+
+// update ban user by id
+exports.updateBan = async (req, res, next) => {
 	try {
 		const { userId } = req.params;
 
@@ -130,7 +200,7 @@ exports.updateUserById = async (req, res, next) => {
 
 		res.status(200).json({
 			status: "success",
-			message: "User banned successfully",
+			message: "User has been Banned",
 		});
 	} catch (error) {
 		next(error);

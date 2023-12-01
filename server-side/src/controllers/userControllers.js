@@ -39,12 +39,15 @@ exports.userRegister = async (req, res, next) => {
 			jwtExpirationTime
 		);
 
+		const encodedToken = encodeURIComponent(token);
+		const activationURL = `${clientURL}/user/activate/${encodedToken}`;
+
 		//Create Email Data
 		const emailData = {
 			email,
 			subject: "Account activation from Travello",
 			html: `<h2>Hello ${username} !</h2>
-						<h4>Please <a href="${clientURL}/user/activate/${token}" target="_blank">click here</a> to acctivate your account.</h4>`,
+						<h4>Please <a href="${activationURL}" target="_blank">click here</a> to acctivate your account.</h4>`,
 		};
 		//send email with nodemailer
 		await sendEmail(emailData);
@@ -280,5 +283,33 @@ exports.updateUser = async (req, res, next) => {
 	} catch (error) {
 		next(error);
 		console.log(error.message);
+	}
+};
+
+//get user detail
+exports.getUserInfo = async (req, res, next) => {
+	try {
+		// parsing user if from token
+		const userId = req.user._id;
+
+		// Check if User exists or not
+		let user = await User.findById(userId);
+		if (!user) {
+			return res.json({
+				error: "User Doesnt Exist",
+			});
+		}
+
+		// nullify user password
+		user.password = undefined;
+
+		//generate response
+		res.status(200).json({
+			status: "Success",
+			user,
+		});
+	} catch (error) {
+		next(error);
+		console.error(error.message);
 	}
 };
