@@ -94,7 +94,7 @@ exports.readById = async (req, res) => {
         const destination = await Destination.aggregate([
             {
                 $match: {
-                    _id: ObjectId(destinationId),
+                    _id: new ObjectId(destinationId),
                 },
             },
             {
