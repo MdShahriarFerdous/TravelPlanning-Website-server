@@ -39,8 +39,8 @@ exports.userRegister = async (req, res, next) => {
 			jwtExpirationTime
 		);
 
-		const encodedToken = encodeURIComponent(token);
-		const activationURL = `${clientURL}/user/activate/${encodedToken}`;
+		const verifyId = "user_" + Math.floor(Math.random() * 100000000);
+		const activationURL = `${clientURL}/user/activate/${verifyId}`;
 
 		//Create Email Data
 		const emailData = {
@@ -56,6 +56,7 @@ exports.userRegister = async (req, res, next) => {
 			message:
 				"Please go to your email for completing registration process",
 			token,
+			verifyId,
 		});
 	} catch (error) {
 		next(error);
