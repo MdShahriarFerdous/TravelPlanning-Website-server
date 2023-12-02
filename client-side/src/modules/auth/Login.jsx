@@ -12,9 +12,9 @@ import useUser from "@app/hooks/useUser";
 
 const Login = () => {
   // if page refresh
-  useUser()
-  
-  const { loading } = useSelector((state) => state.auth);
+  useUser();
+
+  const { loading, error, message } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   const { handleChange, values, handleSubmit, touched, errors } = useFormik({
@@ -32,9 +32,18 @@ const Login = () => {
         .required("Required"),
     }),
     onSubmit: async (values) => {
-      dispatch(userLogin(values));
+      await dispatch(userLogin(values));
     },
   });
+
+  useEffect(() => {
+    if(error){
+      toast.error(error);
+    }
+    if(!!message){
+      toast.success(message);
+    }
+  }, [loading, error]);
 
   setWindowClass("hold-transition login-page");
 

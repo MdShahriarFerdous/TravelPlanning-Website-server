@@ -17,7 +17,7 @@ const UserDropdown = () => {
     event.preventDefault();
     setDropdownOpen(false);
     localStorage.removeItem("userToken");
-    dispatch(logout())
+    dispatch(logout());
   };
 
   const navigateToProfile = (event) => {
@@ -25,6 +25,8 @@ const UserDropdown = () => {
     setDropdownOpen(false);
     navigate("/dashboard");
   };
+
+  const { email, username } = useSelector((state) => state.auth.userInfo);
 
   return (
     <StyledDropdown isOpen={dropdownOpen} hideArrow>
@@ -48,28 +50,22 @@ const UserDropdown = () => {
             rounded
           />
           <p>
-            admin@example.com
+            {username}
             <small>
-              <span>Member since </span>
-              <span> 23 June 1995 </span>
+              <span>{email}</span>
             </small>
           </p>
         </UserHeader>
         <UserFooter>
-          <button
-            type="button"
-            className="btn btn-default btn-flat"
-            onClick={navigateToProfile}
-          >
-            Profile
-          </button>
-          <button
-            type="button"
-            className="btn btn-default btn-flat float-right"
-            onClick={logOutBtn}
-          >
-            Sign Out
-          </button>
+          <p className="text-center">
+            <button
+              type="button"
+              className="btn btn-default btn-flat"
+              onClick={logOutBtn}
+            >
+              Sign Out
+            </button>
+          </p>
         </UserFooter>
       </div>
     </StyledDropdown>
