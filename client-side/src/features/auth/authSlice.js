@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { registerUser, userLogin, userVerify } from "./authActions";
-import { toast } from "react-toastify";
 
 // initialize userToken from local storage
 const userToken = localStorage.getItem("userToken")
@@ -13,7 +12,8 @@ const initialState = {
   userToken,
   error: null,
   success: false,
-  authentication: false
+  authentication: false,
+  message: ''
 };
 
 const authSlice = createSlice({
@@ -38,9 +38,12 @@ const authSlice = createSlice({
       state.error = null;
     },
     [userLogin.fulfilled]: (state, { payload }) => {
+      const { error, admin, createdToken, message } = payload || {};
       state.loading = false;
-      state.userInfo = payload.admin;
-      state.userToken = payload.createdToken;
+      state.error = error;
+      state.userInfo = admin;
+      state.userToken = createdToken;
+      state.message = message;
     },
     [userLogin.rejected]: (state, { payload }) => {
       state.loading = false;
@@ -52,16 +55,18 @@ const authSlice = createSlice({
       state.error = null;
     },
     [registerUser.fulfilled]: (state, { payload }) => {
-      state.loading = false;
       const { error, message, token } = payload || {};
       if (error) {
         state.success = false;
-        toast.error(error+'from sdssd');
+        state.loading = false;
+        state.error = error;
       } else {
         state.success = true; // registration successful
         state.userToken = token;
-        toast.success(message);
+        state.loading = false;
+        state.message = message;
       }
+      return state
     },
     [registerUser.rejected]: (state, { payload }) => {
       state.loading = false;
