@@ -32,7 +32,7 @@ exports.adminLogin = async (req, res, next) => {
 		}
 
 		// check if email is taken
-		const user = await User.find({ email });
+		const user = await User.findOne({ email });
 		if (!user) {
 			return res.json({ error: "User account not found" });
 		}
