@@ -1,4 +1,9 @@
-const { jwtSecretKey, clientURL, jwtExpirationTime } = require("../../secrets");
+const {
+	jwtSecretKey,
+	clientURL,
+	jwtExpirationTime,
+	deployClientURL,
+} = require("../../secrets");
 const { hashPassword, comparePassword } = require("../helpers/hashPass");
 const { createJsonWebToken } = require("../helpers/jsonWebToken");
 const { sendEmail } = require("../helpers/sendEmail");
@@ -42,14 +47,15 @@ exports.userRegister = async (req, res, next) => {
 		);
 
 		const verifyId = "user_" + Math.floor(Math.random() * 100000000);
-		const activationURL = `${clientURL}/user/activate/${verifyId}`;
+		// const activationURL = `${clientURL}/user/activate/${verifyId}`;
+		const deployedActivationURL = `${deployClientURL}/user/activate/${verifyId}`;
 
 		//Create Email Data
 		const emailData = {
 			email,
-			subject: "Account activation from Travello",
+			subject: "Account activation from WeTravel",
 			html: `<h2>Hello ${username} !</h2>
-						<h4>Please <a href="${activationURL}" target="_blank">click here</a> to acctivate your account.</h4>`,
+						<h4>Please <a href="${deployedActivationURL}" target="_blank">click here</a> to acctivate your account.</h4>`,
 		};
 		//send email with nodemailer
 		await sendEmail(emailData);

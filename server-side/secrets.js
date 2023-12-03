@@ -13,6 +13,7 @@ const smtpUsername = process.env.SMTP_USERNAME;
 const smtpPassword = process.env.SMTP_PASSWORD;
 const clientURL = process.env.CLIENT_URL;
 const loginCodeAdmin = process.env.ADMIN_LOGIN_CODE;
+const deployClientURL = process.env.DEPLOY_CLIENT_URL;
 
 module.exports = {
 	ServerPort,
@@ -26,4 +27,5 @@ module.exports = {
 	loginCodeAdmin,
 	defaultPageSize,
 	jwtExpirationTime,
+	deployClientURL,
 };
