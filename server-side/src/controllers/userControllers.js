@@ -12,8 +12,10 @@ exports.userRegister = async (req, res, next) => {
 		const { username, email, password } = req.body;
 
 		//validation
-		if (!username.trim() || username.length < 6 || username.length > 12) {
-			return res.json({ error: "User name error" });
+		if (!username.trim() || username.length > 12) {
+			return res.json({
+				error: "Username length should be less than 12 characters",
+			});
 		}
 
 		if (!email) {
