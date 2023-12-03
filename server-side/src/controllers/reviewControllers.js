@@ -67,8 +67,8 @@ exports.updateReview = async (req, res, next) => {
 //! Delete review by Id
 exports.deleteReview = async (req, res, next) => {
   try {
-    let id = req.params.id;
-    let result = await reviewModel.findOneAndDelete(id);
+    let _id = req.params.id;
+    let result = await reviewModel.findOneAndDelete({ _id });
     res.status(200).json({
       success: true,
       message: result,
