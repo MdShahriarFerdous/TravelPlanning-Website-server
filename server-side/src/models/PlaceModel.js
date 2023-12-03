@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const {ObjectId} = mongoose.Schema;
+const { ObjectId } = mongoose.Schema;
 
-const destinationSchema = new mongoose.Schema({
+const placeSchema = new mongoose.Schema({
     name: {
         type: String,
         trim: true,
@@ -12,19 +12,18 @@ const destinationSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    photos: [{
+    photo: {
         type: String,
         trim: true
-    }],
+    },
     location: {
         type: ObjectId,
         ref: 'Location',
         required: true
     },
     // Other details as needed
-}, {timestamps: true, versionKey: false});
+}, { timestamps: true, versionKey: false });
 
-const Destination = mongoose.model('Destination', destinationSchema);
+const Place = mongoose.model('Place', placeSchema);
 
-
-module.exports = Destination;
+module.exports = Place;
