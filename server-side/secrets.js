@@ -31,11 +31,8 @@ module.exports = {
 	loginCodeAdmin,
 	defaultPageSize,
 	jwtExpirationTime,
-<<<<<<< HEAD
 	cloudinaryName,
 	cloudinaryAPIKey,
 	cloudinarySecretKey,
-=======
 	deployClientURL,
->>>>>>> development
 };
