@@ -7,7 +7,7 @@ const { ObjectId } = require('mongoose').Types;
 exports.create = async (req, res) => {
     try {
         // Destructure variables from req.body
-        const { name, description, photo, location } = req.body;
+        const { name, description, photo, location, map } = req.body;
 
         // Required field validation
         const requiredFields = ['name', 'location'];
@@ -23,6 +23,7 @@ exports.create = async (req, res) => {
             description,
             photo,
             location,
+            map
         }).save();
 
         // Check if the destination is created successfully
@@ -138,6 +139,7 @@ exports.readById = async (req, res) => {
                     name: 1,
                     description: 1,
                     photo: 1,
+                    map: 1,
                     'locationInfo.location_name': 1,
                     'locationInfo.latitude': 1,
                     'locationInfo.longitude': 1,
@@ -216,6 +218,48 @@ exports.remove = async (req, res) => {
     } catch (err) {
         // Log and handle errors
         console.error('Error from Delete:', err.message);
+        return apiResponse.errorResponse(res, 'Something went wrong');
+    }
+};
+
+// Top Destination Controller Function
+exports.getTopDestinations = async (req, res) => {
+    try {
+        const topDestinations = await Destination.aggregate([
+            {
+                $lookup: {
+                    from: 'places',
+                    localField: 'location',
+                    foreignField: 'location',
+                    as: 'places',
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    photo: 1,
+                    placeCount: { $size: '$places' },
+                },
+            },
+            {
+                $sort: { placeCount: -1 },
+            },
+            {
+                $limit: 10,
+            },
+        ]);
+
+        // Check if there are top destinations
+        if (topDestinations.length === 0) {
+            return apiResponse.errorResponse(res, 'No top destinations found');
+        }
+
+        // Return success response with top destinations data
+        return apiResponse.successResponseWithData(res, 'Top 10 Destinations retrieval successful!', topDestinations);
+    } catch (err) {
+        // Log and handle errors
+        console.error('Error from getTopDestinations:', err.message);
         return apiResponse.errorResponse(res, 'Something went wrong');
     }
 };
