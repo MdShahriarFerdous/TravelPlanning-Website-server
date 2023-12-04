@@ -14,6 +14,10 @@ const smtpPassword = process.env.SMTP_PASSWORD;
 const clientURL = process.env.CLIENT_URL;
 const loginCodeAdmin = process.env.ADMIN_LOGIN_CODE;
 
+const cloudinaryName = process.env.CLOUDINARY_CLOUDE_NAME;
+const cloudinaryAPIKey = process.env.CLOUDINARY_API_KEY;
+const cloudinarySecretKey = process.env.CLOUDINARY_API_SECRET_KEY;
+
 module.exports = {
 	ServerPort,
 	MongoDBConnectionPort,
@@ -26,4 +30,7 @@ module.exports = {
 	loginCodeAdmin,
 	defaultPageSize,
 	jwtExpirationTime,
+	cloudinaryName,
+	cloudinaryAPIKey,
+	cloudinarySecretKey,
 };

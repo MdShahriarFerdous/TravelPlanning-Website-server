@@ -2,6 +2,7 @@ const { jwtSecretKey, clientURL, jwtExpirationTime } = require("../../secrets");
 const { hashPassword, comparePassword } = require("../helpers/hashPass");
 const { createJsonWebToken } = require("../helpers/jsonWebToken");
 const { sendEmail } = require("../helpers/sendEmail");
+const cloudinary = require("../helpers/cloudinaryConfig");
 const User = require("../models/usermodel/userModel");
 const jwt = require("jsonwebtoken");
 const UserProfile = require("../models/usermodel/userProfileModel");
@@ -206,6 +207,8 @@ exports.updateProfile = async (req, res, next) => {
 		const { image, path } = req.file || {};
 		const userId = req.user._id;
 
+		const uploadToCloudinary = await cloudinary.uploader.upload(path);
+
 		// Validation for bio only
 		if (bio && bio.length > 120) {
 			return res.json({ error: "Bio must be in 120 characters" });
@@ -216,32 +219,16 @@ exports.updateProfile = async (req, res, next) => {
 			});
 		}
 
-		// Check if UserProfile document exists
-		let profile = await UserProfile.findOne({ user: userId });
-
-		if (!profile) {
-			// If UserProfile doesn't exist, create a new one
-			profile = await UserProfile.create({
-				user: userId,
+		const profile = await UserProfile.findOneAndUpdate(
+			{ user: userId },
+			{
 				city,
 				bio,
-				image: path,
+				image: uploadToCloudinary.secure_url,
 				phone,
-			});
-		} else {
-			// If UserProfile exists, update it
-			profile = await UserProfile.findByIdAndUpdate(
-				userId,
-				{
-					user: userId,
-					city,
-					bio,
-					image: path,
-					phone,
-				},
-				{ new: true }
-			);
-		}
+			},
+			{ new: true, upsert: true }
+		);
 
 		res.status(201).json({
 			status: "Success",
