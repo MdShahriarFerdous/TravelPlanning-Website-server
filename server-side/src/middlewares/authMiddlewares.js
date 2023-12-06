@@ -10,12 +10,21 @@ exports.requireSignIn = async (req, res, next) => {
 				.status(401)
 				.json({ error: "Unauthorized: No token provided" });
 		}
-		const decoded = jwt.verify(token, jwtSecretKey);
-		req.user = decoded;
 
-		// console.log(req.headers.auth);
-		// console.log(req.user);
-		next();
+		jwt.verify(token, jwtSecretKey, (err, decoded) => {
+			if (err) {
+				if (err.name === "TokenExpiredError") {
+					return res.status(401).json({ error: "Token expired" });
+				} else {
+					return res
+						.status(401)
+						.json({ error: "Failed to authenticate token" });
+				}
+			}
+
+			req.user = decoded;
+			next();
+		});
 	} catch (error) {
 		return res
 			.status(401)

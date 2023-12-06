@@ -12,10 +12,14 @@ const destinationSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    photos: [{
+    photo: [{
         type: String,
         trim: true
     }],
+    map: {
+        type: String,
+        trim: true
+    },
     location: {
         type: ObjectId,
         ref: 'Location',
