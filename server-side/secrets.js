@@ -1,7 +1,6 @@
 //Config Lib import and configured
 require("dotenv").config();
 const ServerPort = process.env.SERVER_PORT || process.env.PORT;
-const MongoDBConnectionPort = process.env.MONGO_DB_CONNECTION;
 const MongoDBAtlasConnection = process.env.MONGODB_ATLAS_CONNECTION;
 const defaultPageSize = process.env.DEFAULT_PAGE_SIZE || 5;
 const defaultImagePath =
@@ -14,14 +13,13 @@ const smtpPassword = process.env.SMTP_PASSWORD;
 const clientURL = process.env.CLIENT_URL;
 const loginCodeAdmin = process.env.ADMIN_LOGIN_CODE;
 const deployClientURL = process.env.DEPLOY_CLIENT_URL;
-
-const cloudinaryName = process.env.CLOUDINARY_CLOUDE_NAME;
+const cloudinaryFolder = process.env.CLOUDINARY_FOLDER_NAME || "we-travel";
+const cloudinaryName = process.env.CLOUDINARY_CLOUD_NAME;
 const cloudinaryAPIKey = process.env.CLOUDINARY_API_KEY;
 const cloudinarySecretKey = process.env.CLOUDINARY_API_SECRET_KEY;
 
 module.exports = {
 	ServerPort,
-	MongoDBConnectionPort,
 	defaultImagePath,
 	jwtSecretKey,
 	smtpUsername,
@@ -35,4 +33,5 @@ module.exports = {
 	cloudinaryAPIKey,
 	cloudinarySecretKey,
 	deployClientURL,
+	cloudinaryFolder
 };

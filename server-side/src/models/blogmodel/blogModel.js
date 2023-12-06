@@ -28,15 +28,12 @@ const blogSchema = mongoose.Schema(
     },
     thumbnailImage: {
       type: String,
-      required: [true, "Blog Thumbnail Image is required"],
     },
     coverImage: {
       type: String,
-      required: [true, "Blog Cover Image is required"],
     },
     galleryImage: {
       type: String,
-      required: [true, "Blog Gallery Image is required"],
     },
     details: {
       type: String,
@@ -48,6 +45,10 @@ const blogSchema = mongoose.Schema(
       maxLength: [255, "Maximum length should be 255"],
     },
     isFeatured: {
+      type: Boolean,
+      default: false,
+    },
+    isGallery: {
       type: Boolean,
       default: false,
     },

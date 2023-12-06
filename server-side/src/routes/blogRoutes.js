@@ -2,10 +2,13 @@ const router = require("express").Router();
 const {
   createBlog,
   blogsList,
+  blogsListByAdmin,
+  blogsInHomePage,
+  blogsGallery,
   UserSpecificBlogs,
   updateBlog,
   deleteBlog,
-  deleteAllBlogs
+  deleteAllBlogs,
 } = require("../controllers/blog/blogController");
 const {
   createBlogCategory,
@@ -23,12 +26,17 @@ const {
   updateBlogCategoryRelation,
   deleteBlogCategoryRelation,
 } = require("../controllers/blog/blogRelationController");
-const { requireSignIn } = require("../middlewares/authMiddlewares");
+const { requireSignIn, isAdmin } = require("../middlewares/authMiddlewares");
 const { Uploads } = require("../middlewares/blogImagesMiddleware");
+
+// Blog Admin Routes
+router.get("/admin/blogs", requireSignIn, isAdmin, blogsListByAdmin);
 
 // Blog Routes
 router.post("/blogs", requireSignIn, Uploads, createBlog);
 router.get("/blogs", blogsList);
+router.get("/blogs-home", blogsInHomePage);
+router.get("/blogs-gallery", blogsGallery);
 router.get("/blogs-by-user", requireSignIn, UserSpecificBlogs);
 router.put("/blogs/:blogId", requireSignIn, Uploads, updateBlog);
 router.delete("/blogs/:blogId", requireSignIn, deleteBlog);
