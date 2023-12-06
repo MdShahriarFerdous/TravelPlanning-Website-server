@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const tourThumbnailSchema = new mongoose.Schema(
 	{
-		tourMatchingCode: {
+		tourInfoId: {
 			type: String,
 			required: true,
 			trim: true,
@@ -10,10 +10,37 @@ const tourThumbnailSchema = new mongoose.Schema(
 		image: {
 			type: String,
 			required: true,
+			trim: true,
 		},
-		tourName: {
+		locationName: {
 			type: String,
 			required: true,
+			trim: true,
+		},
+		tourTitle: {
+			type: String,
+			required: true,
+			trim: true,
+		},
+		durations: {
+			type: String,
+			required: true,
+			trim: true,
+		},
+		peopleSize: {
+			type: Number,
+			required: true,
+		},
+		ratings: {
+			type: Number,
+			min: 1,
+			max: 5,
+		},
+		reviewsCount: {
+			type: Number,
+		},
+		price: {
+			type: Number,
 		},
 	},
 	{

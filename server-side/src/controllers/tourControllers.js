@@ -9,6 +9,7 @@ const TourPersonPrice = require("../models/tourmodel/tourPriceModel");
 const VehiclePrice = require("../models/tourmodel/vehiclePriceModel");
 const TourBooking = require("../models/tourmodel/tourBookingModel");
 const TourListCard = require("../models/tourmodel/tourListCardModel");
+const TourThumbnail = require("../models/tourmodel/tourThumbnailModel");
 
 //create foodmenu for particular tour
 exports.tourFoodMenu = async (req, res, next) => {
@@ -532,13 +533,68 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 //create tour thumbnail by admin
 exports.tourThumbnail = async (req, res, next) => {
 	try {
-		const { tourMatchingCode, image, tourName } = req.body;
-		if (!tourMatchingCode || !image || !tourName) {
-			return res.json({ error: "Please provide all the " });
+		const {
+			tourInfoId,
+			image,
+			locationName,
+			tourTitle,
+			durations,
+			peopleSize,
+			ratings,
+			reviewsCount,
+		} = req.body;
+
+		const existTourId = await TourThumbnail.findOne({ tourInfoId });
+		if (existTourId) {
+			return res.json({ error: "Tour Info Id already exist!" });
 		}
+
+		switch (true) {
+			case !tourInfoId.trim():
+				return res.json({ error: "Tour Info Id is required" });
+			case !image.trim():
+				return res.json({ error: "Image is required" });
+			case !ratings:
+				return res.json({ error: "Rating number is required" });
+			case !locationName.trim():
+				return res.json({ error: "LocationName is required" });
+			case !reviewsCount:
+				return res.json({ error: "Reviews count is required" });
+			case !tourTitle.trim():
+				return res.json({ error: "Title is required" });
+			case !durations.trim():
+				return res.json({ error: "Duration is required" });
+			case !peopleSize:
+				return res.json({ error: "People size is required" });
+		}
+
+		const createTourThumbnail = await new TourThumbnail({
+			...req.body,
+		}).save();
 		res.status(201).json({
 			status: "Success",
 			message: "Tour thumbnail created",
+			thumbnailDetails: createTourThumbnail,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+//get all tour thumbnails
+exports.listTourThumbnail = async (req, res, next) => {
+	try {
+		const allThumbnailsList = await TourThumbnail.find({});
+
+		if (!allThumbnailsList) {
+			return res.json({ error: "Tour thumbnails showing failed!" });
+		}
+
+		res.status(201).json({
+			status: "Success",
+			message: "All tour thumbnails",
+			tourPackageLists: allThumbnailsList,
 		});
 	} catch (error) {
 		console.log(error);
