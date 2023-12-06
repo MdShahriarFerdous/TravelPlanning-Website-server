@@ -5,7 +5,7 @@ const bookmarkModel = require('../models/bookmarkModel');
 exports.addToBookmarks = async (req, res) => {
   try {
 
-    // Extract userId from request headers and hotelId from request params
+    // Extract userId from request headers and hotelId and tourId from request params
     const userId = req.headers.id;
     const { hotelId, tourId }= req.params;
 
@@ -50,7 +50,7 @@ exports.getAllBookmarks = async (req, res) => {
         })
     } catch (error) {
         // Pass the error to the next middleware
-        next(error)
+        // next(error)
         console.log(error.message)
     }
 }
