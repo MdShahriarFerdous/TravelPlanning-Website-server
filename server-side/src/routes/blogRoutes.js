@@ -1,55 +1,69 @@
 const router = require("express").Router();
 const {
   createBlog,
-  createBlogCategory,
   blogsList,
-  blogCategoriesList,
   UserSpecificBlogs,
   updateBlog,
-  updateBlogCategory,
   deleteBlog,
+  deleteAllBlogs
+} = require("../controllers/blog/blogController");
+const {
+  createBlogCategory,
+  blogCategoriesList,
+  updateBlogCategory,
   deleteBlogCategory,
-  updateBlogCategoryRelation
-} = require("../controllers/blogController");
+} = require("../controllers/blog/blogCategoryController");
+const {
+  createBlogTag,
+  blogTagsList,
+  updateBlogTag,
+  deleteBlogTag,
+} = require("../controllers/blog/blogTagController");
+const {
+  updateBlogCategoryRelation,
+  deleteBlogCategoryRelation,
+} = require("../controllers/blog/blogRelationController");
 const { requireSignIn } = require("../middlewares/authMiddlewares");
 const { Uploads } = require("../middlewares/blogImagesMiddleware");
 
-// Create a Blog
+// Blog Routes
 router.post("/blogs", requireSignIn, Uploads, createBlog);
-
-// Create a Blog Category
-router.post("/blog-categories", requireSignIn, createBlogCategory);
-
-// View All Blog
 router.get("/blogs", blogsList);
-
-// View All Blog Categories
-router.get("/blog-categories", blogCategoriesList);
-
-// View Blogs only by user
 router.get("/blogs-by-user", requireSignIn, UserSpecificBlogs);
-
-// Update a Single Blog
 router.put("/blogs/:blogId", requireSignIn, Uploads, updateBlog);
+router.delete("/blogs/:blogId", requireSignIn, deleteBlog);
+router.delete("/blogs", requireSignIn, deleteAllBlogs);
 
-// Update a Single Blog Category
+// Blog Category Routes
+router.post("/blog-categories", requireSignIn, createBlogCategory);
+router.get("/blog-categories", blogCategoriesList);
 router.put(
   "/blog-categories/:blogCategoryId",
   requireSignIn,
   updateBlogCategory
 );
-
-// Delete a Single Blog
-router.delete("/blogs/:blogId", requireSignIn, deleteBlog);
-
-// Delete a Single Blog
 router.delete(
   "/blog-categories/:blogCategoryId",
   requireSignIn,
   deleteBlogCategory
 );
 
-// Update Blog Category Relation
-router.patch("/blogs/:blogId", requireSignIn, updateBlogCategoryRelation);
+// Blog Tag Routes
+router.post("/blog-tags", requireSignIn, createBlogTag);
+router.get("/blog-tags", blogTagsList);
+router.put("/blog-tags/:blogTagId", requireSignIn, updateBlogTag);
+router.delete("/blog-tags/:blogTagId", requireSignIn, deleteBlogTag);
+
+// Blog Relations Routes
+router.post(
+  "/blog-category-relation/:blogId",
+  requireSignIn,
+  updateBlogCategoryRelation
+);
+router.delete(
+  "/blog-category-relation/:blogId",
+  requireSignIn,
+  deleteBlogCategoryRelation
+);
 
 module.exports = router;

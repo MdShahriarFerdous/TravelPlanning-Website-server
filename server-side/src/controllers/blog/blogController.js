@@ -1,17 +1,22 @@
-const Blog = require("../models/blogModel");
-const BlogCategory = require("../models/blogCategoryModel");
-const { defaultPageSize } = require("../../secrets");
-const { updateSrc, deleteSrc } = require("../utilities/updateImage");
+const Blog = require("../../models/blogmodel/blogModel");
+const { defaultPageSize } = require("../../../secrets");
+const { updateSrc, deleteSrc } = require("../../utilities/updateImage");
+const User = require("../../models/usermodel/userModel");
 
 const blogController = {
   // Create a Single Blog in Draft Mode
   createBlog: async (req, res, next) => {
     try {
-      const { title, details } = req.body;
-      const { thumbnailImage, coverImage } = req.files || {};
-      const { path: thumbnailImagePath } = thumbnailImage?.[0] || {};
-      const { path: coverImagePath } = coverImage?.[0] || {};
-      const author = req.user._id;
+      const { title, details, listImage, detailsImage, galleryListImage } =
+        req.body;
+      const { thumbnailImage, coverImage, galleryImage } = req.files || {};
+      const userId = req.user._id;
+      const profile = await User.findOne({ _id: userId });
+
+      const author = {
+        userId: userId,
+        userName: profile.username || "Unknown User",
+      };
 
       // Check if Blog Title exists
       const blogTitle = await Blog.findOne({ title });
@@ -21,18 +26,58 @@ const blogController = {
         });
       }
 
-      // Check if Blog Thumbnail is less than 1 mb
-      if (thumbnailImage && thumbnailImage.size > 1000000) {
-        return res.json({
-          error: "Blog Thumbnail should be less than 1 mb in size",
-        });
+      // Blog Thumbnail Image Validation
+      let thumb = listImage;
+      if (!thumbnailImage) {
+        if (!listImage) {
+          return res.json({
+            error: "Please Upload a Thumbnail Image or Provide a Link",
+          });
+        }
+      } else {
+        if (thumbnailImage.size > 1000000) {
+          return res.json({
+            error: "Blog Thumbnail should be less than 1 mb in size",
+          });
+        }
+        const { path: thumbnailImagePath } = thumbnailImage?.[0] || {};
+        thumb = thumbnailImagePath;
       }
 
-      // Check if Blog Cover Image is less than 10 mb
-      if (coverImage && coverImage.size > 10000000) {
-        return res.json({
-          error: "Blog Cover Image should be less than 10 mb in size",
-        });
+      // Blog Cover Image Validation
+      let cover = detailsImage;
+      if (!coverImage) {
+        if (!listImage) {
+          return res.json({
+            error: "Please Upload a Cover Image or Provide a Link",
+          });
+        }
+      } else {
+        if (coverImage.size > 1000000) {
+          return res.json({
+            error: "Blog Thumbnail should be less than 1 mb in size",
+          });
+        }
+        const { path: coverImagePath } = coverImage?.[0] || {};
+        cover = coverImagePath;
+      }
+
+      // Blog Gallery Image Validation
+      let gallery = galleryListImage;
+      if (!galleryImage) {
+        if (!galleryListImage) {
+          return res.json({
+            error: "Please Upload a Gallery Image or Provide a Link",
+          });
+        }
+      } else {
+        if (galleryImage.size > 1000000) {
+          return res.json({
+            error: "Blog Thumbnail should be less than 1 mb in size",
+          });
+        }
+        const { path: galleryImagePath } = galleryImage?.[0] || {};
+        gallery = galleryImagePath;
       }
 
       // Check if blog details is between 100 - 255 characters
@@ -47,8 +92,9 @@ const blogController = {
         author,
         title,
         details,
-        thumbnailImage: thumbnailImagePath,
-        coverImage: coverImagePath,
+        thumbnailImage: thumb,
+        coverImage: cover,
+        galleryImage: gallery,
       });
 
       // generate response
@@ -56,33 +102,6 @@ const blogController = {
         status: "Success",
         message: "Please Wait for the Admin to approve your Post",
         data: blog,
-      });
-    } catch (error) {
-      next(error);
-      console.error(error.message);
-    }
-  },
-  // Create a Blog Category
-  createBlogCategory: async (req, res, next) => {
-    try {
-      const { title } = req.body;
-
-      // Check if Blog Title exists
-      const blogCategoryTitle = await BlogCategory.findOne({ title });
-      if (blogCategoryTitle) {
-        return res.json({
-          error: "Blog Category Title must be Unique",
-        });
-      }
-
-      // if all validation passed
-      const blogCategory = await BlogCategory.create({ title });
-
-      // generate response
-      res.status(200).json({
-        status: "Success",
-        message: "A New Blog Category is created",
-        data: blogCategory,
       });
     } catch (error) {
       next(error);
@@ -113,37 +132,6 @@ const blogController = {
 
       res.status(200).json({
         blogs,
-        page,
-        totalPages,
-        count,
-        itemsPerPage: pageSize,
-      });
-    } catch (error) {
-      next(error);
-      console.error(error.message);
-    }
-  },
-  // List All Blog Categories
-  blogCategoriesList: async (req, res, next) => {
-    try {
-      const pageSize = Number(20); // Number of items per page
-      const page = Number(req.query.pageNumber) || 1;
-
-      const keyword = req.query.keyword
-        ? {
-            $or: [{ title: { $regex: req.query.keyword, $options: "i" } }],
-          }
-        : {};
-
-      const count = await BlogCategory.countDocuments({ ...keyword });
-      const totalPages = Math.ceil(count / pageSize);
-
-      const blogCategories = await BlogCategory.find({ ...keyword })
-        .limit(pageSize)
-        .skip(pageSize * (page - 1));
-
-      res.status(200).json({
-        blogCategories,
         page,
         totalPages,
         count,
@@ -197,6 +185,8 @@ const blogController = {
         title: newTitle,
         details: newDetails,
         status: newStatus,
+        listImage,
+        detailsImage,
       } = req.body;
       const { thumbnailImage: newThumbnailImage, coverImage: newCoverImage } =
         req.files || {};
@@ -244,6 +234,10 @@ const blogController = {
       );
       if (isUpdatedThumbnail.status) {
         updatedBlogInfo.thumbnailImage = isUpdatedThumbnail.path;
+      } else {
+        if (listImage) {
+          updatedBlogInfo.thumbnailImage = listImage;
+        }
       }
 
       // Blog Cover Image Validation
@@ -254,7 +248,12 @@ const blogController = {
       );
       if (isUpdatedCover.status) {
         updatedBlogInfo.coverImage = isUpdatedCover.path;
+      } else {
+        if (detailsImage) {
+          updatedBlogInfo.coverImage = detailsImage;
+        }
       }
+
       // No Chnages made to Update Blog
       if (Object.keys(updatedBlogInfo).length === 0) {
         return res.json({
@@ -272,43 +271,6 @@ const blogController = {
         status: "Success",
         message: "Blog is Updated",
         data: updatedBlog,
-      });
-    } catch (error) {
-      next(error);
-      console.error(error.message);
-    }
-  },
-  // Update a Blog Category by Id
-  updateBlogCategory: async (req, res, next) => {
-    try {
-      const { blogCategoryId } = req.params;
-      const { title } = req.body;
-
-      // Check if Blog Category Title exists
-      const blogCategoryTitle = await BlogCategory.findOne({ title });
-      if (blogCategoryTitle) {
-        return res.json({
-          error: "Blog Category Title must be Unique",
-        });
-      }
-
-      const updatedBlogCategory = await BlogCategory.findByIdAndUpdate(
-        blogCategoryId,
-        { title },
-        { new: true }
-      );
-
-      if (!updatedBlogCategory) {
-        return res.json({
-          error: "Blog Category Not Updated",
-        });
-      }
-
-      // generate response
-      res.status(200).json({
-        status: "Success",
-        message: "Blog Category is Updated",
-        data: updatedBlogCategory,
       });
     } catch (error) {
       next(error);
@@ -343,39 +305,14 @@ const blogController = {
       console.error(error.message);
     }
   },
-  // Delete Blog Category by Id
-  deleteBlogCategory: async (req, res, next) => {
+  // Delete All Blogs
+  deleteAllBlogs: async (req, res, next) => {
     try {
-      const { blogCategoryId } = req.params;
-
-      // Deleting the Images from the Location
-      await BlogCategory.findByIdAndDelete(blogCategoryId);
+      await Blog.deleteMany({});
       res.status(200).json({
         status: "Success",
-        message: "Blog Category is Deleted Successfully",
-        data: {
-          deletedBlogCategoryId: blogCategoryId,
-        },
-      });
-    } catch (error) {
-      next(error);
-      console.error(error.message);
-    }
-  },
-  // Update Blog Categories List of a Blog
-  updateBlogCategoryRelation: async (req, res, next) => {
-    try {
-      const { blogId } = req.params;
-      const { blogCategoryId } = req.body;
-
-      const updatedBlog = await Blog.findByIdAndUpdate(blogId, {
-        $addToSet: { categories: blogCategoryId },
-      });
-
-      res.status(200).json({
-        status: "Success",
-        message: "Blog Categories of a Blog is Updated",
-        data: updatedBlog,
+        message: "All Blogs Deleted",
+        data: [],
       });
     } catch (error) {
       next(error);

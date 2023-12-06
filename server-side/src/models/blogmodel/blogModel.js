@@ -3,20 +3,23 @@ const mongoose = require("mongoose");
 const blogSchema = mongoose.Schema(
   {
     author: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: [true, "A Blog Should have an Author"],
-    },
-    categories: [
-      {
+      userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "BlogCategory",
-        default: [],
+        ref: "User",
+        required: [true, "A Blog Should have an Author"],
       },
-    ],
+      userName: String,
+    },
+    categories: {
+      type: [String],
+      default: [],
+    },
+    tags: {
+      type: [String],
+      default: [],
+    },
     title: {
       type: String,
-    
       required: [true, "Blog Title is required"],
       trim: true,
       unique: true,
@@ -31,6 +34,10 @@ const blogSchema = mongoose.Schema(
       type: String,
       required: [true, "Blog Cover Image is required"],
     },
+    galleryImage: {
+      type: String,
+      required: [true, "Blog Gallery Image is required"],
+    },
     details: {
       type: String,
       default:
@@ -38,7 +45,11 @@ const blogSchema = mongoose.Schema(
       required: [true, "Blog Details is required"],
       trim: true,
       minLength: [100, "Minimum Length should be 100"],
-      maxLength: [255, "Maximum length should be 255"]
+      maxLength: [255, "Maximum length should be 255"],
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
     },
     status: {
       type: Boolean,
@@ -50,7 +61,6 @@ const blogSchema = mongoose.Schema(
     versionKey: false,
   }
 );
-
 
 const Blog = mongoose.model("Blog", blogSchema);
 module.exports = Blog;
