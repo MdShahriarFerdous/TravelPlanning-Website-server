@@ -4,9 +4,9 @@ const hotelModel = require("../models/hotelSchema");
 
 exports.createitinerary = async (req, res, next) => {
   try {
-    let { locationName, tripLength } = req.body;
+    let { location_name, tripLength } = req.body;
     let existingLocation = await locationModel.findOne({
-      name: locationName,
+      location_name,
     });
 
     if (existingLocation?._id) {
@@ -21,7 +21,7 @@ exports.createitinerary = async (req, res, next) => {
         });
       }
 
-      let hotels = await hotelModel.find({ city: existingLocation.locationName });
+      let hotels = await hotelModel.find({ city: existingLocation.location_name });
 
       let itinerary = [];
       let placeIndex = 0;
@@ -43,6 +43,8 @@ exports.createitinerary = async (req, res, next) => {
       }
 
       let result = {
+        location_name,
+        tripLength,
         hotels,
         itinerary,
       };
