@@ -25,6 +25,8 @@ const {
 const {
   updateBlogCategoryRelation,
   deleteBlogCategoryRelation,
+  updateBlogTagRelation,
+  deleteBlogTagRelation,
 } = require("../controllers/blog/blogRelationController");
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddlewares");
 const { Uploads } = require("../middlewares/blogImagesMiddleware");
@@ -72,6 +74,12 @@ router.delete(
   "/blog-category-relation/:blogId",
   requireSignIn,
   deleteBlogCategoryRelation
+);
+router.post("/blog-tag-relation/:blogId", requireSignIn, updateBlogTagRelation);
+router.delete(
+  "/blog-tag-relation/:blogId",
+  requireSignIn,
+  deleteBlogTagRelation
 );
 
 module.exports = router;
