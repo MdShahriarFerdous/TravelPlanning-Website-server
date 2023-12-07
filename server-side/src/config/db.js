@@ -5,7 +5,7 @@ const {MongoDBAtlasConnection} = require("../../secrets");
 const databaseConnection = () => {
 	mongoose.set("strictQuery", false);
 	mongoose
-		.connect(MongoDBConnectionPort)
+		.connect(MongoDBAtlasConnection)
 		.then(() => {
 			console.log("MongoDB connected!!");
 		})
