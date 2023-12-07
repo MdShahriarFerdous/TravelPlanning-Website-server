@@ -1,6 +1,5 @@
 const {
 	jwtSecretKey,
-	cloudinaryFolder,
 	jwtExpirationTime,
 	deployClientURL,
 	cloudinaryFolder,
