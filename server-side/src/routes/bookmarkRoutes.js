@@ -1,18 +1,41 @@
-const express = require('express');
-const bookmarkController = require('../controllers/bookmarkController');
+const express = require("express");
+const bookmarkController = require("../controllers/bookmarkController");
 const { requireSignIn } = require("../middlewares/authMiddlewares");
 const router = express.Router();
 
-// CRUD operations
+// add hotel bookmark
+router.post(
+  "/add-hotel-bookmark/:hotelId",
+  requireSignIn,
+  bookmarkController.addToHotelBookmark
+);
 
-// add bookmark
-router.post('/add-bookmark/:hotelId/:tourId', requireSignIn, bookmarkController.addToBookmarks);
+// add tour bookmark
+router.post(
+  "/add-tour-bookmark/:tourId",
+  requireSignIn,
+  bookmarkController.addToTourBookmark
+);
 
 // get bookmark list
-router.get('/get-all-bookmarks', requireSignIn, bookmarkController.getAllBookmarks);
+router.get(
+  "/get-all-bookmarks",
+  requireSignIn,
+  bookmarkController.getAllBookmarks
+);
 
+// delete hotel bookmark
+router.delete(
+  "/remove-hotel-bookmark/:hotelId",
+  requireSignIn,
+  bookmarkController.removeHotelBookmark
+);
 
-// delete bookmark
-router.delete('/remove-bookmarks', requireSignIn, bookmarkController.removeBookmarks);
+// delete tour bookmark
+router.delete(
+  "/remove-tour-bookmark/:tourId",
+  requireSignIn,
+  bookmarkController.removeTourBookmark
+);
 
 module.exports = router;

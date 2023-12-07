@@ -1,83 +1,121 @@
-const bookmarkModel = require('../models/bookmarkModel');
+const bookmarkModel = require("../models/bookmarkModel");
 
-
-//  Add to Bookmarks
-exports.addToBookmarks = async (req, res) => {
+//  add hotel to bookmark
+exports.addToHotelBookmark = async (req, res, next) => {
   try {
+    // extract userId from request headers and hotelId from request params
+    const userId = req.user._id;
+    const { hotelId } = req.params;
 
-    // Extract userId from request headers and hotelId and tourId from request params
-    const userId = req.headers.id;
-    const { hotelId, tourId }= req.params;
-
-
-    // Insert a new bookmark for the user
+    // insert a new hotel to bookmark
     await bookmarkModel.updateOne(
-        {userId},
-        {
-            $set: { userId},
-            // Add flightId and hotelId to the bookmarks 
-            $addToSet: { hotelId, tourId }
-        },
-        
-        {upsert: true})
+      { userId },
+      {
+        $set: { userId },
+        // add hotelId to the bookmark
+        $addToSet: { hotelId },
+      },
+      { upsert: true }
+    );
 
     return res.status(200).json({
-        status: 'success',
-        message: 'Added to Bookmark'
-    })
-
+      status: "success",
+      message: "Added hotel to Bookmark",
+    });
   } catch (error) {
-
-    // Pass the error to the next middleware
-    next(error)
-    console.log(error.message)
-
+    // pass the error to the next middleware
+    next(error);
+    console.log(error.message);
   }
 };
 
-// Get All Bookmarks List  
-exports.getAllBookmarks = async (req, res) => {
-    try {
-       
-        let userId = req.headers.id;
+//  add tour to bookmark
+exports.addToTourBookmark = async (req, res, next) => {
+  try {
+    // extract userId from request headers and tourId from request params
+    const userId = req.user._id;
+    const { tourId } = req.params;
 
-        // Find all bookmarks for the specified user ID
-        let data = await bookmarkModel.find({ userId })
+    // insert a new hotel to bookmark
+    await bookmarkModel.updateOne(
+      { userId },
+      {
+        $set: { userId },
+        // add tourId to the bookmark
+        $addToSet: { tourId },
+      },
+      { upsert: true }
+    );
 
-        res.status(200).json({
-            status: 'success',
-            data: data
-        })
-    } catch (error) {
-        // Pass the error to the next middleware
-        // next(error)
-        console.log(error.message)
-    }
-}
+    return res.status(200).json({
+      status: "success",
+      message: "Added tour to Bookmark",
+    });
+  } catch (error) {
+    // pass the error to the next middleware
+    next(error);
+    console.log(error.message);
+  }
+};
 
+// get all bookmarks list
+exports.getAllBookmarks = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
 
+    // find all bookmarks for the specified user ID
+    let data = await bookmarkModel.findOne({ userId });
 
+    res.status(200).json({
+      status: "success",
+      data: data,
+    });
+  } catch (error) {
+    next(error);
+    console.log(error.message);
+  }
+};
 
-// Remove the Bookmark
-exports.removeBookmarks = async (req, res) => {
-    try {
+// remove the hotel bookmark
+exports.removeHotelBookmark = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const hotelId = req.params.hotelId;
 
-        const userId = req.headers.id;
-        
-        // Remove the bookmark with the specified userId
-        await bookmarkModel.deleteOne({ userId });
+    await bookmarkModel.findOneAndUpdate(
+      { userId },
+      { $pull: { hotelId } },
+      { new: true }
+    );
 
+    return res.status(200).json({
+      status: "success",
+      message: "Hotel removed from Bookmark",
+    });
+  } catch (error) {
+    next(error);
+    console.log(error.message);
+  }
+};
 
-        return res.status(200).json({
-            status: 'success',
-            message: 'Bookmark Removed'
-        })
+// remove the tour bookmark
+exports.removeTourBookmark = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const tourId = req.params.tourId;
 
+    await bookmarkModel.findOneAndUpdate(
+      { userId },
+      { $pull: { tourId } },
+      { new: true }
+    );
 
-    } catch (error) {
-        // Pass the error to the next middleware
-        next(error)
-        console.log(error.message)
-    }
-}
-
+    return res.status(200).json({
+      status: "success",
+      message: "Tour removed from Bookmark",
+    });
+  } catch (error) {
+    next(error);
+    console.log(error.message);
+  }
+};
