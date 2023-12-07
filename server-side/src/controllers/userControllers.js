@@ -213,13 +213,8 @@ exports.updateProfile = async (req, res, next) => {
 		const userId = req.user._id;
 
 		const uploadToCloudinary = await cloudinary.uploader.upload(path, {
-<<<<<<< HEAD
 			folder: `${cloudinaryFolder}/user`,
 		});
-=======
-            folder: `${cloudinaryFolder}/user`,
-        });
->>>>>>> origin/development
 
 		// Validation for bio only
 		if (bio && bio.length > 120) {
