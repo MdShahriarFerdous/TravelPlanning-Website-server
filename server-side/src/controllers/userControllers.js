@@ -1,6 +1,6 @@
 const {
 	jwtSecretKey,
-	clientURL,
+	cloudinaryFolder,
 	jwtExpirationTime,
 	deployClientURL,
 } = require("../../secrets");
@@ -211,7 +211,9 @@ exports.updateProfile = async (req, res, next) => {
 		const { image, path } = req.file || {};
 		const userId = req.user._id;
 
-		const uploadToCloudinary = await cloudinary.uploader.upload(path);
+		const uploadToCloudinary = await cloudinary.uploader.upload(path, {
+            folder: `${cloudinaryFolder}/user`,
+        });
 
 		// Validation for bio only
 		if (bio && bio.length > 120) {

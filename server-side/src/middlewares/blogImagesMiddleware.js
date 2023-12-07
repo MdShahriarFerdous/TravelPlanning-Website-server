@@ -21,6 +21,7 @@ exports.Uploads = async (req, res, next) => {
 		}).fields([
 			{ name: "thumbnailImage", maxCount: 1 },
 			{ name: "coverImage", maxCount: 1 },
+			{ name: "galleryImage", maxCount: 1 },
 		  ])
 
 		upload(req, res, (err) => {
