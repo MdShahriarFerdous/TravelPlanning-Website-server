@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const {
   createBlog,
+  readBlog,
   blogsList,
   blogsListByAdmin,
   blogsInHomePage,
@@ -40,6 +41,7 @@ router.get("/blogs", blogsList);
 router.get("/blogs-home", blogsInHomePage);
 router.get("/blogs-gallery", blogsGallery);
 router.get("/blogs-by-user", requireSignIn, UserSpecificBlogs);
+router.get("/blogs/:blogId", readBlog);
 router.put("/blogs/:blogId", requireSignIn, Uploads, updateBlog);
 router.delete("/blogs/:blogId", requireSignIn, deleteBlog);
 router.delete("/blogs", requireSignIn, deleteAllBlogs);
