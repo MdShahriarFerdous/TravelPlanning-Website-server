@@ -133,6 +133,26 @@ const blogController = {
       console.error(error.message);
     }
   },
+  // View a Single Blog in Draft Mode
+  readBlog: async (req, res, next) => {
+    try {
+      const { blogId } = req.params;
+      // Retrieve Blog's Info
+      const blogInfo = await Blog.findOne({ _id: blogId });
+      if (!blogInfo) {
+        return res.json({ error: "Blog Not Found" });
+      }
+      // generate response
+      res.status(200).json({
+        status: "Success",
+        message: "Blog Found",
+        data: blogInfo,
+      });
+    } catch (error) {
+      next(error);
+      console.error(error.message);
+    }
+  },
   // List Blogs (All)
   blogsList: async (req, res, next) => {
     try {
