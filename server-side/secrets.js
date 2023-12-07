@@ -15,7 +15,8 @@ const clientURL = process.env.CLIENT_URL;
 const loginCodeAdmin = process.env.ADMIN_LOGIN_CODE;
 const deployClientURL = process.env.DEPLOY_CLIENT_URL;
 
-const cloudinaryName = process.env.CLOUDINARY_CLOUDE_NAME;
+const cloudinaryFolder = process.env.CLOUDINARY_FOLDER_NAME || "we-travel";
+const cloudinaryName = process.env.CLOUDINARY_CLOUD_NAME;
 const cloudinaryAPIKey = process.env.CLOUDINARY_API_KEY;
 const cloudinarySecretKey = process.env.CLOUDINARY_API_SECRET_KEY;
 
@@ -35,4 +36,5 @@ module.exports = {
 	cloudinaryAPIKey,
 	cloudinarySecretKey,
 	deployClientURL,
+	cloudinaryFolder,
 };

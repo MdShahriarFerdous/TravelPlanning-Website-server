@@ -387,12 +387,12 @@ exports.tourBooking = async (req, res, next) => {
 	}
 };
 
-//get a tourInfo by id
+//get a tourInfo by id or single tour
 exports.tourByID = async (req, res, next) => {
 	try {
 		const { tourInfoId } = req.params;
 
-		const getTourInfo = await TourInfo.findById(tourInfoId);
+		const getTourInfo = await TourInfo.findOne({ tourId: tourInfoId });
 		const tourId = getTourInfo.tourId;
 
 		const description = await TourDescription.aggregate([
@@ -421,15 +421,31 @@ exports.tourByID = async (req, res, next) => {
 			},
 		]);
 
+		const tourVehiclePrice = await VehiclePrice.aggregate([
+			{
+				$match: { tourId: { $eq: `${tourId}` } },
+			},
+		]);
+
+		const tourPersonPay = await TourPersonPrice.aggregate([
+			{
+				$match: { tourId: { $eq: `${tourId}` } },
+			},
+		]);
+
 		res.status(200).json({
 			status: "Success",
 			message: "Here is a tour overview",
-			getTourInfo,
-			description,
-			foodmenu,
-			packages,
-			includeExclude,
-			tourTips,
+			tourDetails: {
+				getTourInfo,
+				description: description || {},
+				foodmenu: foodmenu || {},
+				packages: packages || {},
+				includeExclude: includeExclude || {},
+				tourTips: tourTips || {},
+				tourVehiclePrice: tourVehiclePrice || {},
+				tourPersonPay: tourPersonPay || {},
+			},
 		});
 	} catch (error) {
 		console.log(error);

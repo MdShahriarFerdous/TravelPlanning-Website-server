@@ -3,6 +3,7 @@ const {
 	clientURL,
 	jwtExpirationTime,
 	deployClientURL,
+	cloudinaryFolder,
 } = require("../../secrets");
 const { hashPassword, comparePassword } = require("../helpers/hashPass");
 const { createJsonWebToken } = require("../helpers/jsonWebToken");
@@ -211,7 +212,9 @@ exports.updateProfile = async (req, res, next) => {
 		const { image, path } = req.file || {};
 		const userId = req.user._id;
 
-		const uploadToCloudinary = await cloudinary.uploader.upload(path);
+		const uploadToCloudinary = await cloudinary.uploader.upload(path, {
+			folder: `${cloudinaryFolder}/user`,
+		});
 
 		// Validation for bio only
 		if (bio && bio.length > 120) {
