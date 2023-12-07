@@ -9,27 +9,27 @@ const blogRelationController = {
       const { blogId } = req.params;
       const { blogCategoryId } = req.body;
 
-      const { title } = await BlogCategory.findOne({ _id: blogCategoryId });
-      if (!title) {
+      const foundCategory = await BlogCategory.findOne({ _id: blogCategoryId });
+      if (!foundCategory) {
         return res.json({
-          error: "Blog Category Title Not Found",
+          error: "Blog Category Not Found",
         });
       }
       await Blog.findOneAndUpdate(
         { _id: blogId },
-        { $addToSet: { categories: title } },
+        { $addToSet: { categories: foundCategory.title } },
         { new: true }
       )
         .then((updatedBlog) => {
           if (updatedBlog) {
             return res.status(200).json({
               status: "Success",
-              message: "Blog Categories of a Blog is Updated",
+              message: "Categories of a Blog is Updated",
               data: updatedBlog,
             });
           } else {
             return res.json({
-              error: "Blog Categories of a Blog can not be Updated",
+              error: "Categories of a Blog can not be Updated",
             });
           }
         })
@@ -49,22 +49,22 @@ const blogRelationController = {
       const { blogId } = req.params;
       const { blogCategoryId } = req.body;
 
-      const { title } = await BlogCategory.findOne({ _id: blogCategoryId });
-      if (!title) {
+      const foundCategory = await BlogCategory.findOne({ _id: blogCategoryId });
+      if (!foundCategory) {
         return res.json({
-          error: "Blog Category Title Not Found",
+          error: "Blog Category Not Found",
         });
       }
 
       const updatedBlog = await Blog.findOneAndUpdate(
-        { _id: blogId, categories: title },
-        { $pull: { categories: title } },
+        { _id: blogId, categories: foundCategory.title },
+        { $pull: { categories: foundCategory.title } },
         { new: true }
       );
 
       res.status(200).json({
         status: "Success",
-        message: "Blog Category Removed from a Blog",
+        message: "Category Removed from a Blog",
         data: updatedBlog,
       });
     } catch (error) {
@@ -78,15 +78,15 @@ const blogRelationController = {
       const { blogId } = req.params;
       const { blogTagId } = req.body;
 
-      const { title } = await BlogTag.findOne({ _id: blogTagId });
-      if (!title) {
+      const foundTag = await BlogTag.findOne({ _id: blogTagId });
+      if (!foundTag) {
         return res.json({
-          error: "Blog Tag Title Not Found",
+          error: "Blog Tag Not Found",
         });
       }
       await Blog.findOneAndUpdate(
         { _id: blogId },
-        { $addToSet: { tags: title } },
+        { $addToSet: { tags: foundTag.title } },
         { new: true }
       )
         .then((updatedTag) => {
@@ -118,16 +118,16 @@ const blogRelationController = {
       const { blogId } = req.params;
       const { blogTagId } = req.body;
 
-      const { title } = await BlogTag.findOne({ _id: blogTagId });
-      if (!title) {
+      const foundTag = await BlogTag.findOne({ _id: blogTagId });
+      if (!foundTag) {
         return res.json({
-          error: "Blog Tag Title Not Found",
+          error: "Blog Tag Not Found",
         });
       }
 
       const updatedTag = await Blog.findOneAndUpdate(
-        { _id: blogId, tags: title },
-        { $pull: { tags: title } },
+        { _id: blogId, tags: foundTag.title },
+        { $pull: { tags: foundTag.title } },
         { new: true }
       );
 
