@@ -1,7 +1,6 @@
 const Blog = require("../../models/blogmodel/blogModel");
 const BlogCategory = require("../../models/blogmodel/blogCategoryModel");
 const BlogTag = require("../../models/blogmodel/blogTagModel");
-const BlogTag = require("../../models/blogmodel/blogModel");
 
 const blogRelationController = {
   // Update Blog Categories List of a Blog
