@@ -12,6 +12,8 @@ const {
 	tourByID,
 	tourCard,
 	matchedLocationTourLists,
+	tourThumbnail,
+	listTourThumbnail,
 } = require("../controllers/tourControllers");
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddlewares");
 const router = express.Router();
@@ -29,6 +31,8 @@ router.post("/create-tourOptions", requireSignIn, isAdmin, tourPackageOptions);
 router.post("/create-personPay", requireSignIn, isAdmin, personPayChart);
 router.post("/create-vehiclePay", requireSignIn, isAdmin, vehiclePayChart);
 router.post("/create-tourInfo", tourInfo);
+//create tour thumbnail
+router.post("/tour-thumbnail", requireSignIn, isAdmin, tourThumbnail);
 
 //booking a tour
 router.post(
@@ -46,6 +50,8 @@ router.get(
 	matchedLocationTourLists
 );
 //particular tourInfo by id
-router.get("/tour-info/:tourInfoId", requireSignIn, tourByID);
+router.get("/tour-info/:tourInfoId", tourByID);
+//show all tour-thumbnails
+router.get("/tour-thumbnails", listTourThumbnail);
 
 module.exports = router;
