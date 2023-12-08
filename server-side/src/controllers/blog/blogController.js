@@ -162,6 +162,7 @@ const blogController = {
       const previousPost = await Blog.findOne({
         createdAt: { $lt: blogInfo.createdAt },
         status: true,
+        isGallery: false,
       })
         .sort({ createdAt: "desc" })
         .limit(1);
@@ -170,6 +171,7 @@ const blogController = {
       const nextPost = await Blog.findOne({
         createdAt: { $gt: blogInfo.createdAt },
         status: true,
+        isGallery: false,
       })
         .sort({ createdAt: "asc" })
         .limit(1);
