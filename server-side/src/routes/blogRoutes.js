@@ -9,7 +9,7 @@ const {
   UserSpecificBlogs,
   updateBlog,
   deleteBlog,
-  deleteAllBlogs,
+  deleteAllBlogs
 } = require("../controllers/blog/blogController");
 const {
   createBlogCategory,
@@ -44,7 +44,7 @@ router.get("/blogs-by-user", requireSignIn, UserSpecificBlogs);
 router.get("/blogs/:blogId", readBlog);
 router.put("/blogs/:blogId", requireSignIn, Uploads, updateBlog);
 router.delete("/blogs/:blogId", requireSignIn, deleteBlog);
-router.delete("/blogs", requireSignIn, deleteAllBlogs);
+router.delete("/blogs", requireSignIn, isAdmin, deleteAllBlogs);
 
 // Blog Category Routes
 router.post("/blog-categories", requireSignIn, createBlogCategory);
@@ -67,7 +67,7 @@ router.put("/blog-tags/:blogTagId", requireSignIn, updateBlogTag);
 router.delete("/blog-tags/:blogTagId", requireSignIn, deleteBlogTag);
 
 // Blog Relations Routes
-router.post(
+router.put(
   "/blog-category-relation/:blogId",
   requireSignIn,
   updateBlogCategoryRelation

@@ -4,6 +4,8 @@ const { updateSrc, deleteSrc } = require("../../utilities/updateImage");
 const User = require("../../models/usermodel/userModel");
 const cloudinary = require("../../helpers/cloudinaryConfig");
 const { cloudinaryFolder } = require("../../../secrets");
+const UserProfile = require("../../models/usermodel/userProfileModel");
+const BlogCategory = require("../../models/blogmodel/blogCategoryModel");
 
 const blogController = {
   // Create a Single Blog in Draft Mode
@@ -16,15 +18,14 @@ const blogController = {
         detailsImage,
         galleryListImage,
         isGallery,
+        category,
       } = req.body;
       const { thumbnailImage, coverImage, galleryImage } = req.files || {};
-      const userId = req.user._id;
-      const profile = await User.findOne({ _id: userId });
 
-      const author = {
-        userId: userId,
-        userName: profile.username || "Unknown User",
-      };
+      // Setting Author
+      const author = req.user._id;
+      const profile = await UserProfile.findOne({ user: req.user._id });
+      const authorProfile = profile._id;
 
       // Check if Blog Title exists
       const blogTitle = await Blog.findOne({ title });
@@ -111,9 +112,20 @@ const blogController = {
         });
       }
 
+      // Check if blog category is given or not
+      if (!category) {
+        if (isGallery !== "true") {
+          return res.json({
+            error: "Blog must have to put in a category",
+          });
+        }
+      }
+
       // if all validation passed
       const blog = await Blog.create({
         author,
+        authorProfile,
+        category,
         title,
         details,
         thumbnailImage: thumb,
@@ -138,44 +150,150 @@ const blogController = {
     try {
       const { blogId } = req.params;
       // Retrieve Blog's Info
-      const blogInfo = await Blog.findOne({ _id: blogId });
+      const blogInfo = await Blog.findOne({ _id: blogId })
+        .populate("category", "title")
+        .populate("author", "username")
+        .populate("authorProfile", "bio image");
       if (!blogInfo) {
         return res.json({ error: "Blog Not Found" });
       }
+
+      // Find the previous post
+      const previousPost = await Blog.findOne({
+        createdAt: { $lt: blogInfo.createdAt },
+        status: true,
+      })
+        .sort({ createdAt: "desc" })
+        .limit(1);
+
+      // Find the next post
+      const nextPost = await Blog.findOne({
+        createdAt: { $gt: blogInfo.createdAt },
+        status: true,
+      })
+        .sort({ createdAt: "asc" })
+        .limit(1);
+
       // generate response
       res.status(200).json({
         status: "Success",
         message: "Blog Found",
-        data: blogInfo,
+        data: { currentPost: blogInfo, previousPost, nextPost },
       });
     } catch (error) {
       next(error);
       console.error(error.message);
     }
   },
-  // List Blogs (All)
+  // List Blogs for public (All with filtering)
   blogsList: async (req, res, next) => {
     try {
       const pageSize = Number(defaultPageSize); // Number of items per page
-      const page = Number(req.query.pageNumber) || 1;
+      const { author, category, tag, pageNumber } = req.query || {};
+      const page = Number(pageNumber) || 1;
+      let count = 0;
+      let totalPages = 0;
+      let blogs = [];
 
-      const keyword = req.query.keyword
-        ? {
-            $or: [
-              { title: { $regex: req.query.keyword, $options: "i" } },
-              { details: { $regex: req.query.keyword, $options: "i" } },
-            ],
-          }
-        : {};
-
-      const count = await Blog.countDocuments({ ...keyword, status: true });
-      const totalPages = Math.ceil(count / pageSize);
-
-      const blogs = await Blog.find({ ...keyword, status: true })
-        .limit(pageSize)
-        .skip(pageSize * (page - 1))
-        .select("_id title thumbnailImage author tags details createdAt");
-
+      // if author, category, tag provided
+      if (author && category && tag) {
+        count = await Blog.countDocuments({
+          author,
+          tags: tag,
+          category,
+          status: true,
+          isGallery: false,
+        });
+        totalPages = Math.ceil(count / pageSize);
+        blogs = await Blog.find({
+          author,
+          tags: tag,
+          category,
+          status: true,
+          isGallery: false,
+        })
+          .populate("category", "title")
+          .populate("author", "username")
+          .limit(pageSize)
+          .skip(pageSize * (page - 1))
+          .select(
+            "_id title thumbnailImage author category tags details createdAt"
+          );
+      }
+      // if only author provided
+      else if (author) {
+        count = await Blog.countDocuments({
+          author,
+          status: true,
+          isGallery: false,
+        });
+        totalPages = Math.ceil(count / pageSize);
+        blogs = await Blog.find({
+          author,
+          status: true,
+          isGallery: false,
+        })
+          .populate("category", "title")
+          .populate("author", "username")
+          .limit(pageSize)
+          .skip(pageSize * (page - 1))
+          .select(
+            "_id title thumbnailImage author category tags details createdAt"
+          );
+      }
+      // if only category provided
+      else if (category) {
+        count = await Blog.countDocuments({
+          category,
+          status: true,
+          isGallery: false,
+        });
+        totalPages = Math.ceil(count / pageSize);
+        blogs = await Blog.find({
+          category,
+          status: true,
+          isGallery: false,
+        })
+          .populate("category", "title")
+          .populate("author", "username")
+          .limit(pageSize)
+          .skip(pageSize * (page - 1))
+          .select(
+            "_id title thumbnailImage author category tags details createdAt"
+          );
+      }
+      // if only tag provided
+      else if (tag) {
+        count = await Blog.countDocuments({
+          tags: tag,
+          status: true,
+          isGallery: false,
+        });
+        totalPages = Math.ceil(count / pageSize);
+        blogs = await Blog.find({
+          tags: tag,
+          status: true,
+          isGallery: false,
+        })
+          .populate("category", "title")
+          .populate("author", "username")
+          .limit(pageSize)
+          .skip(pageSize * (page - 1))
+          .select(
+            "_id title thumbnailImage author category tags details createdAt"
+          );
+      } else {
+        count = await Blog.countDocuments({ status: true, isGallery: false });
+        totalPages = Math.ceil(count / pageSize);
+        blogs = await Blog.find({ status: true, isGallery: false })
+          .populate("category", "title")
+          .populate("author", "username")
+          .limit(pageSize)
+          .skip(pageSize * (page - 1))
+          .select(
+            "_id title thumbnailImage author category tags details createdAt"
+          );
+      }
       res.status(200).json({
         blogs,
         page,
@@ -188,7 +306,7 @@ const blogController = {
       console.error(error.message);
     }
   },
-  // List Blogs (All)
+  // List Blogs For Admin (All)
   blogsListByAdmin: async (req, res, next) => {
     try {
       const pageSize = Number(defaultPageSize); // Number of items per page
@@ -225,9 +343,9 @@ const blogController = {
   // List Blogs (Only featured Ones)
   blogsInHomePage: async (req, res, next) => {
     try {
-      const blogs = await Blog.find({ isFeatured: true }).select(
-        "_id title thumbnailImage tags  createdAt"
-      );
+      const blogs = await Blog.find({ isFeatured: true, status: true })
+        .populate("category", "title")
+        .select("_id title thumbnailImage category  createdAt");
       res.status(200).json({
         blogs,
       });
@@ -239,9 +357,24 @@ const blogController = {
   // List Blogs (Only gallery)
   blogsGallery: async (req, res, next) => {
     try {
-      const blogs = await Blog.find({ isGallery: true }).select(
-        "_id galleryImage thumbnailImage"
-      );
+      const blogs = await Blog.find({ isGallery: true, status: true })
+        .limit(16)
+        .select("_id galleryImage thumbnailImage");
+      res.status(200).json({
+        blogs,
+      });
+    } catch (error) {
+      next(error);
+      console.error(error.message);
+    }
+  },
+  // List Blogs (Recently Posted)
+  blogsRecent: async (req, res, next) => {
+    try {
+      const blogs = await Blog.find({})
+        .sort({ createdAt: "desc", status: true })
+        .limit(5)
+        .select("_id title thumbnailImage createdAt");
       res.status(200).json({
         blogs,
       });
