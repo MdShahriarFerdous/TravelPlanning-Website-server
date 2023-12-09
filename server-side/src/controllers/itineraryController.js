@@ -1,6 +1,6 @@
 const locationModel = require("../models/LocationModel");
 const historicalPlacesModel = require("../models/historicalPlacesModel");
-const hotelModel = require("../models/hotelSchema");
+const hotelModel = require("../models/hotelmodel/hotelModel");
 
 exports.createitinerary = async (req, res, next) => {
   try {
