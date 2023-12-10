@@ -65,7 +65,7 @@ const tourInfoSchema = new mongoose.Schema(
 			},
 		],
 		maxGroupSize: {
-			type: String,
+			type: Number,
 			required: true,
 		},
 	},

@@ -14,6 +14,7 @@ const {
 	matchedLocationTourLists,
 	tourThumbnail,
 	listTourThumbnail,
+	calculateTotalCost,
 } = require("../controllers/tourControllers");
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddlewares");
 const router = express.Router();
@@ -53,5 +54,11 @@ router.get(
 router.get("/tour-info/:tourInfoId", tourByID);
 //show all tour-thumbnails
 router.get("/tour-thumbnails", listTourThumbnail);
+
+//calculate tour cost
+router.get(
+	"/tour-cost/:tourId/:adultNo/:childrenNo/:packageName/:vehicleOption",
+	calculateTotalCost
+);
 
 module.exports = router;
