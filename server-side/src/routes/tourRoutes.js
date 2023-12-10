@@ -56,7 +56,7 @@ router.get("/tour-info/:tourInfoId", tourByID);
 router.get("/tour-thumbnails", listTourThumbnail);
 
 //calculate tour cost
-router.get(
+router.post(
 	"/tour-cost/:tourId/:adultNo/:childrenNo/:packageName/:vehicleOption",
 	calculateTotalCost
 );
