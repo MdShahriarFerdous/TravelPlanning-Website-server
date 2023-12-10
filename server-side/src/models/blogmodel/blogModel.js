@@ -3,16 +3,16 @@ const mongoose = require("mongoose");
 const blogSchema = mongoose.Schema(
   {
     author: {
-      userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: [true, "A Blog Should have an Author"],
-      },
-      userName: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
-    categories: {
-      type: [String],
-      default: [],
+    authorProfile: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserProfile",
+    },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "BlogCategory",
     },
     tags: {
       type: [String],

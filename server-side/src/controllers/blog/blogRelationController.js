@@ -9,27 +9,30 @@ const blogRelationController = {
       const { blogId } = req.params;
       const { blogCategoryId } = req.body;
 
-      const foundCategory = await BlogCategory.findOne({ _id: blogCategoryId });
-      if (!foundCategory) {
+      // Check if the new category exists
+      const categoryExists = await BlogCategory.exists({ _id: blogCategoryId });
+      if (!categoryExists) {
         return res.json({
           error: "Blog Category Not Found",
         });
       }
-      await Blog.findOneAndUpdate(
-        { _id: blogId },
-        { $addToSet: { categories: foundCategory.title } },
+
+      // Find the blog by ID and update the category
+      await Blog.findByIdAndUpdate(
+        blogId,
+        { $set: { category: blogCategoryId } },
         { new: true }
       )
         .then((updatedBlog) => {
           if (updatedBlog) {
             return res.status(200).json({
               status: "Success",
-              message: "Categories of a Blog is Updated",
+              message: "Blog Category is Updated",
               data: updatedBlog,
             });
           } else {
             return res.json({
-              error: "Categories of a Blog can not be Updated",
+              error: "Blog Category can not be Updated",
             });
           }
         })
