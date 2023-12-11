@@ -4,7 +4,11 @@ const hotelSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, "Hotel Name is required"],
+      trim: true,
+      unique: true,
+      minLength: [3, "Minimum Length should be 3"],
+      maxLength: [50, "Maximum length should be 50"],
     },
     location: {
       type: mongoose.Schema.Types.ObjectId,
@@ -13,7 +17,7 @@ const hotelSchema = new mongoose.Schema(
       required: true,
     },
     rentPerPerson: {
-      type: mongoose.Schema.Types.Decimal128,
+      type: Number,
       required: true,
     },
     thumbnail: {
