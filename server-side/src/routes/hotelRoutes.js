@@ -21,7 +21,7 @@ router.post(
   create
 );
 router.put(
-  "/hotels",
+  "/hotels/:hotelId",
   requireSignIn,
   isAdmin,
   upload("thumbnail", "hotels"),
