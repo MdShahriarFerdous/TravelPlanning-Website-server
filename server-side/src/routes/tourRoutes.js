@@ -15,6 +15,8 @@ const {
 	tourThumbnail,
 	listTourThumbnail,
 	calculateTotalCost,
+	getTourBookingInfo,
+	getVehicleData,
 } = require("../controllers/tourControllers");
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddlewares");
 const router = express.Router();
@@ -44,6 +46,7 @@ router.post(
 
 //tour card list create
 router.post("/create-tourCardList", requireSignIn, isAdmin, tourCard);
+
 //show all tour lists
 router.get(
 	"/show-tourCardList/:tourMatchingCode/:pageNo/:perPage/:searchKeyword",
@@ -52,6 +55,7 @@ router.get(
 );
 //particular tourInfo by id
 router.get("/tour-info/:tourInfoId", tourByID);
+
 //show all tour-thumbnails
 router.get("/tour-thumbnails", listTourThumbnail);
 
@@ -60,5 +64,14 @@ router.post(
 	"/tour-cost/:tourId/:adultNo/:childrenNo/:packageName/:vehicleOption",
 	calculateTotalCost
 );
+
+//get tour booking info by id
+router.get("/get-tour-booking-info/:bookingId", getTourBookingInfo);
+
+//get vehicle data by tourID
+router.get("/get-vehicle-data/:tourId", getVehicleData);
+
+//get package data by tourID and packageName
+router.get("/get-package-data/:tourId/:packageName");
 
 module.exports = router;

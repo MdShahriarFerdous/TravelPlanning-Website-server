@@ -363,7 +363,7 @@ exports.tourBooking = async (req, res, next) => {
 		const tourDate = new Date(tourInfo.tourDate);
 
 		const createdBooking = await new TourBooking({
-			userId,
+			userId: userId,
 			tourInfoId,
 			tourId,
 			packageName,
@@ -692,10 +692,75 @@ exports.listTourThumbnail = async (req, res, next) => {
 			return res.json({ error: "Tour thumbnails showing failed!" });
 		}
 
-		res.status(201).json({
+		res.status(200).json({
 			status: "Success",
 			message: "All tour thumbnails",
 			tourPackageLists: allThumbnailsList,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+//get tour-booking-info by id
+exports.getTourBookingInfo = async (req, res, next) => {
+	const { bookingId } = req.params;
+	try {
+		const tourBookingInfo = await TourBooking.findById(bookingId);
+
+		if (!tourBookingInfo) {
+			return res.json({ error: "No tour booking info by this id!" });
+		}
+
+		res.status(200).json({
+			status: "Success",
+			message: "Here is the booking info",
+			tourBookingInfo,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+//get Vehicle pay chart by tourId
+exports.getVehicleData = async (req, res, next) => {
+	const { tourId } = req.params;
+	try {
+		const vehicleData = await VehiclePrice.findOne(tourId);
+
+		if (!vehicleData) {
+			return res.json({ error: "No tour booking info by this id!" });
+		}
+
+		res.status(200).json({
+			status: "Success",
+			message: "Here is the vehicle data",
+			vehicleData,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+//get package data by tourId and packageName
+exports.getPackageData = async (req, res, next) => {
+	const { tourId, packageName } = req.params;
+	try {
+		const packageData = await PackageOption.findOne({
+			tourId: tourId,
+			packageName: packageName,
+		});
+
+		if (!packageData) {
+			return res.json({ error: "No package info by this id!" });
+		}
+
+		res.status(200).json({
+			status: "Success",
+			message: "Particular package data",
+			packageData,
 		});
 	} catch (error) {
 		console.log(error);
