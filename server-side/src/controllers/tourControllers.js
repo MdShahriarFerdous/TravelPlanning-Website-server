@@ -767,3 +767,27 @@ exports.getPackageData = async (req, res, next) => {
 		next(error);
 	}
 };
+
+//get person pay data by tourId and packageName
+exports.getPersonPayData = async (req, res, next) => {
+	const { tourId, packageName } = req.params;
+	try {
+		const personPayData = await TourPersonPrice.findOne({
+			tourId: tourId,
+			packageName: packageName,
+		});
+
+		if (!personPayData) {
+			return res.json({ error: "No data info by this id!" });
+		}
+
+		res.status(200).json({
+			status: "Success",
+			message: "Person pay data",
+			personPayData,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};

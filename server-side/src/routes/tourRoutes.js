@@ -17,6 +17,8 @@ const {
 	calculateTotalCost,
 	getTourBookingInfo,
 	getVehicleData,
+	getPackageData,
+	getPersonPayData,
 } = require("../controllers/tourControllers");
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddlewares");
 const router = express.Router();
@@ -72,6 +74,9 @@ router.get("/get-tour-booking-info/:bookingId", getTourBookingInfo);
 router.get("/get-vehicle-data/:tourId", getVehicleData);
 
 //get package data by tourID and packageName
-router.get("/get-package-data/:tourId/:packageName");
+router.get("/get-package-data/:tourId/:packageName", getPackageData);
+
+//get person pay data by tourID and packageName
+router.get("/get-personpay-data/:tourId/:packageName", getPersonPayData);
 
 module.exports = router;
