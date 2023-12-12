@@ -1,12 +1,43 @@
-const express = require("express");
-const router = express.Router();
-const hotelController = require("../controllers/hotelControllers"); // Renamed to hotelController for better clarity
+const router = require("express").Router();
+const { requireSignIn, isAdmin } = require("../middlewares/authMiddlewares");
+const { upload } = require("../middlewares/singleImageMiddleware");
+const {
+  read,
+  list,
+  create,
+  update,
+  delete:deleteByID,
+  deleteAll
+} = require("../controllers/hotel/hotelController");
 
 // Routes for hotels
-router.post("/hotels/create", hotelController.createHotel);
-router.get("/hotels/all", hotelController.getAllHotels);
-router.get("/hotels/:hotelId/details", hotelController.getHotelById);
-router.put("/hotels/:hotelId/update", hotelController.updateHotel);
-router.delete("/hotels/:hotelId/delete", hotelController.deleteHotel);
+router.get("/hotels/:hotelId", read);
+router.get("/hotels", list);
+router.post(
+  "/hotels",
+  requireSignIn,
+  isAdmin,
+  upload("thumbnail", "hotels"),
+  create
+);
+router.put(
+  "/hotels/:hotelId",
+  requireSignIn,
+  isAdmin,
+  upload("thumbnail", "hotels"),
+  update
+);
+router.delete(
+  "/hotels/:hotelId",
+  requireSignIn,
+  isAdmin,
+  deleteByID
+);
+router.delete(
+  "/hotels-all",
+  requireSignIn,
+  isAdmin,
+  deleteAll
+);
 
 module.exports = router;
