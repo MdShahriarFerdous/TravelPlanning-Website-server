@@ -4,15 +4,18 @@ const bookmarkSchema = new mongoose.Schema({
 
     userId: { 
         type: String, 
-        required: true 
+        required: true,
+        ref: "User" 
     },
     hotelId : [{
         type : mongoose.Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: "Hotel" 
     }],
     tourId : [{
         type : mongoose.Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: "TourInfo" 
     }]
     
 }, 
