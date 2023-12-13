@@ -397,7 +397,7 @@ exports.calculateTotalCost = async (req, res, next) => {
 			Number(adultNo) === 1 &&
 			Number(childrenNo) === 0 &&
 			packageName === "Economy Package" &&
-			vehicleOption === "N/A";
+			vehicleOption === "No";
 
 		if (isDefaultValues) {
 			const defaultAdultPay = await TourPersonPrice.aggregate([
@@ -419,12 +419,73 @@ exports.calculateTotalCost = async (req, res, next) => {
 				adultPay: defaultAdultPay[0]?.adultPay || 0,
 			});
 		} else {
-			// Continue with the existing calculation logic
 			const adultPersonCount = Number(adultNo) || 1;
 			const childrenCount = Number(childrenNo) || 0;
 
-			// ... (rest of the existing code)
+			const personPayChart = await TourPersonPrice.aggregate([
+				{ $match: { tourId: { $eq: `${tourId}` } } },
+				{ $match: { packageName: { $eq: `${packageName}` } } },
+				{
+					$project: {
+						_id: 0,
+						adultPay: {
+							$cond: [
+								{ $gt: [adultPersonCount, 0] },
+								"$adultPay",
+								null,
+							],
+						},
+						childrenPay: {
+							$cond: [
+								{ $gt: [childrenCount, 0] },
+								"$childrenPay",
+								null,
+							],
+						},
+					},
+				},
+			]);
 
+			const vehiclePayChart = await VehiclePrice.aggregate([
+				{ $match: { tourId: `${tourId}` } },
+				{
+					$project: {
+						_id: 0,
+						vehiclePrice: {
+							$cond: {
+								if: { $eq: [`$vehicle1Name`, vehicleOption] },
+								then: "$vehicle1Price",
+								else: {
+									$cond: {
+										if: {
+											$eq: [
+												`$vehicle2Name`,
+												vehicleOption,
+											],
+										},
+										then: "$vehicle2Price",
+										else: "$vehicle3Price",
+									},
+								},
+							},
+						},
+					},
+				},
+			]);
+			const targetVehiclePrice = vehiclePayChart[0]?.vehiclePrice;
+
+			const selectedPackagePrice = await PackageOption.aggregate([
+				{ $match: { tourId: { $eq: `${tourId}` } } },
+				{ $match: { packageName: { $eq: `${packageName}` } } },
+				{
+					$project: {
+						_id: 0,
+						packagePrice: 1,
+					},
+				},
+			]);
+
+			// Calculate total cost
 			const totalCost =
 				adultPersonCount * (personPayChart[0]?.adultPay || 0) +
 				childrenCount * (personPayChart[0]?.childrenPay || 0) +
