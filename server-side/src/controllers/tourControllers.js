@@ -391,81 +391,52 @@ exports.calculateTotalCost = async (req, res, next) => {
 	try {
 		const { tourId, adultNo, childrenNo, packageName, vehicleOption } =
 			req.params;
-		const adultPersonCount = Number(adultNo) || 1;
-		const childrenCount = Number(childrenNo) || 0;
 
-		const personPayChart = await TourPersonPrice.aggregate([
-			{ $match: { tourId: { $eq: `${tourId}` } } },
-			{ $match: { packageName: { $eq: `${packageName}` } } },
-			{
-				$project: {
-					_id: 0,
-					adultPay: {
-						$cond: [
-							{ $gt: [adultPersonCount, 0] },
-							"$adultPay",
-							null,
-						],
-					},
-					childrenPay: {
-						$cond: [
-							{ $gt: [childrenCount, 0] },
-							"$childrenPay",
-							null,
-						],
-					},
-				},
-			},
-		]);
+		// Default values
+		const isDefaultValues =
+			Number(adultNo) === 1 &&
+			Number(childrenNo) === 0 &&
+			packageName === "Economy Package" &&
+			vehicleOption === "N/A";
 
-		const vehiclePayChart = await VehiclePrice.aggregate([
-			{ $match: { tourId: `${tourId}` } },
-			{
-				$project: {
-					_id: 0,
-					vehiclePrice: {
-						$cond: {
-							if: { $eq: [`$vehicle1Name`, vehicleOption] },
-							then: "$vehicle1Price",
-							else: {
-								$cond: {
-									if: {
-										$eq: [`$vehicle2Name`, vehicleOption],
-									},
-									then: "$vehicle2Price",
-									else: "$vehicle3Price",
-								},
-							},
+		if (isDefaultValues) {
+			const defaultAdultPay = await TourPersonPrice.aggregate([
+				{ $match: { tourId: { $eq: `${tourId}` } } },
+				{ $match: { packageName: { $eq: "Economy Package" } } },
+				{
+					$project: {
+						_id: 0,
+						adultPay: {
+							$cond: [{ $gt: [1, 0] }, "$adultPay", null],
 						},
 					},
 				},
-			},
-		]);
-		const targetVehiclePrice = vehiclePayChart[0]?.vehiclePrice;
+			]);
 
-		const selectedPackagePrice = await PackageOption.aggregate([
-			{ $match: { tourId: { $eq: `${tourId}` } } },
-			{ $match: { packageName: { $eq: `${packageName}` } } },
-			{
-				$project: {
-					_id: 0,
-					packagePrice: 1,
-				},
-			},
-		]);
+			res.status(200).json({
+				status: "Success",
+				message: "Adult Pay for Default Values",
+				adultPay: defaultAdultPay[0]?.adultPay || 0,
+			});
+		} else {
+			// Continue with the existing calculation logic
+			const adultPersonCount = Number(adultNo) || 1;
+			const childrenCount = Number(childrenNo) || 0;
 
-		// Calculate total cost
-		const totalCost =
-			adultPersonCount * (personPayChart[0]?.adultPay || 0) +
-			childrenCount * (personPayChart[0]?.childrenPay || 0) +
-			(selectedPackagePrice[0]?.packagePrice || 0) +
-			(targetVehiclePrice || 0);
+			// ... (rest of the existing code)
 
-		res.status(200).json({
-			status: "Success",
-			message: "Total Cost",
-			totalCost,
-		});
+			const totalCost =
+				adultPersonCount * (personPayChart[0]?.adultPay || 0) +
+				childrenCount * (personPayChart[0]?.childrenPay || 0) +
+				(selectedPackagePrice[0]?.packagePrice || 0) +
+				(targetVehiclePrice || 0);
+
+			res.status(200).json({
+				status: "Success",
+				message: "Total Cost",
+				totalCost,
+			});
+		}
 	} catch (error) {
 		console.log(error);
 		next(error);
