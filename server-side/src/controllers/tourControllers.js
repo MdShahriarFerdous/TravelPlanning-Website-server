@@ -726,8 +726,9 @@ exports.getTourBookingInfo = async (req, res, next) => {
 //get Vehicle pay chart by tourId
 exports.getVehicleData = async (req, res, next) => {
 	const { tourId } = req.params;
+
 	try {
-		const vehicleData = await VehiclePrice.findOne(tourId);
+		const vehicleData = await VehiclePrice.findOne({ tourId });
 
 		if (!vehicleData) {
 			return res.json({ error: "No tour booking info by this id!" });
