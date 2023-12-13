@@ -416,7 +416,7 @@ exports.calculateTotalCost = async (req, res, next) => {
 			res.status(200).json({
 				status: "Success",
 				message: "Adult Pay for Default Values",
-				adultPay: defaultAdultPay[0]?.adultPay || 0,
+				totalCost: defaultAdultPay[0]?.adultPay || 0,
 			});
 		} else {
 			const adultPersonCount = Number(adultNo) || 1;
@@ -499,8 +499,12 @@ exports.calculateTotalCost = async (req, res, next) => {
 			});
 		}
 	} catch (error) {
-		console.log(error);
-		next(error);
+		console.error("Error in calculateTotalCost:", error);
+		res.status(500).json({
+			status: "Error",
+			message: "Internal Server Error",
+			error: error.message,
+		});
 	}
 };
 
