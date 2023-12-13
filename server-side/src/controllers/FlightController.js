@@ -293,7 +293,7 @@ exports.searchFlights = async (req, res) => {
 			destination_id: destinationId,
 			journey_date: new Date(journey_date),
 			flight_class,
-			seatLeft: { $gte: total_travellers },
+			seatLeft: { $gte: Number(total_travellers) },
 		};
 
 		console.log(searchCriteria);
@@ -331,6 +331,17 @@ exports.searchFlights = async (req, res) => {
 				},
 			},
 			{
+				$lookup: {
+					from: "airlines",
+					localField: "planeInfo.airline_id",
+					foreignField: "_id",
+					as: "airlineInfo",
+				},
+			},
+			{
+				$unwind: "$airlineInfo",
+			},
+			{
 				$unwind: "$sourceLocation",
 			},
 			{
@@ -360,6 +371,8 @@ exports.searchFlights = async (req, res) => {
 					"planeInfo.capacity": 1,
 					"planeInfo.manufacturing_year": 1,
 					"planeInfo.registration_number": 1,
+					"airlineInfo.airline_name": 1,
+					"airlineInfo.logo": 1,
 				},
 			},
 		]);
