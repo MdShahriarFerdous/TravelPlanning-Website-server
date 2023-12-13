@@ -792,3 +792,21 @@ exports.getPersonPayData = async (req, res, next) => {
 		next(error);
 	}
 };
+
+//get only tourInfo by id without details
+exports.tourInfoByID = async (req, res, next) => {
+	try {
+		const { tourInfoId } = req.params;
+
+		const getTourInfo = await TourInfo.findOne({ tourId: tourInfoId });
+
+		res.status(200).json({
+			status: "Success",
+			message: "Here is a tour info",
+			getTourInfo,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};

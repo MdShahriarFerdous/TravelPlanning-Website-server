@@ -19,6 +19,7 @@ const {
 	getVehicleData,
 	getPackageData,
 	getPersonPayData,
+	tourInfoByID,
 } = require("../controllers/tourControllers");
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddlewares");
 const router = express.Router();
@@ -57,6 +58,9 @@ router.get(
 );
 //particular tourInfo by id
 router.get("/tour-info/:tourInfoId", tourByID);
+
+//particular tourInfo by id without other details
+router.get("/tour/:tourInfoId", tourInfoByID);
 
 //show all tour-thumbnails
 router.get("/tour-thumbnails", listTourThumbnail);
