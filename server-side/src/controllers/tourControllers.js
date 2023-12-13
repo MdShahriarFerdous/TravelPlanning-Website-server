@@ -810,3 +810,27 @@ exports.tourInfoByID = async (req, res, next) => {
 		next(error);
 	}
 };
+
+//delete Tourbooking
+exports.deleteTourBooking = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+
+		const deletedBooking = await TourBooking.findByIdAndDelete({ _id: id });
+		if (!deletedBooking) {
+			return res.status(404).json({
+				status: "Error",
+				message: "Booking not found",
+			});
+		}
+
+		res.status(200).json({
+			status: "Success",
+			message: "Booking is deleted",
+			deletedBooking,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};

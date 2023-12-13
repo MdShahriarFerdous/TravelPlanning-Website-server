@@ -20,6 +20,7 @@ const {
 	getPackageData,
 	getPersonPayData,
 	tourInfoByID,
+	deleteTourBooking,
 } = require("../controllers/tourControllers");
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddlewares");
 const router = express.Router();
@@ -82,5 +83,8 @@ router.get("/get-package-data/:tourId/:packageName", getPackageData);
 
 //get person pay data by tourID and packageName
 router.get("/get-personpay-data/:tourId/:packageName", getPersonPayData);
+
+//delete tour booking
+router.delete("/delete-booking/:id", deleteTourBooking);
 
 module.exports = router;
