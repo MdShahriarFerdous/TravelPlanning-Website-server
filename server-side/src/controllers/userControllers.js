@@ -309,3 +309,29 @@ exports.getUserInfo = async (req, res, next) => {
 		console.error(error.message);
 	}
 };
+
+//get user detail
+exports.getUserById = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		// Check if User exists or not
+		let user = await User.findById(id);
+		if (!user) {
+			return res.json({
+				error: "User Doesnt Exist",
+			});
+		}
+
+		// nullify user password
+		user.password = undefined;
+
+		//generate response
+		res.status(200).json({
+			status: "Success",
+			user,
+		});
+	} catch (error) {
+		next(error);
+		console.error(error.message);
+	}
+};

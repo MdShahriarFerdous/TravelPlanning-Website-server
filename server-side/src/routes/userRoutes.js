@@ -5,7 +5,8 @@ const {
 	updateProfile,
 	userLogin,
 	updateUser,
-	getUserInfo
+	getUserInfo,
+	getUserById,
 } = require("../controllers/userControllers");
 const { requireSignIn } = require("../middlewares/authMiddlewares");
 const { Upload } = require("../middlewares/imageMiddleware");
@@ -28,5 +29,8 @@ router.post("/update-user", requireSignIn, updateUser);
 
 //get user info
 router.get("/user-info", requireSignIn, getUserInfo);
+
+//get user by id
+router.get("/user-by-id/:id", getUserById);
 
 module.exports = router;
