@@ -114,8 +114,6 @@ exports.getAllBookmarks = async (req, res, next) => {
         data: data,
       });
     }
-
-    // find all bookmarks for the specified user ID
   } catch (error) {
     next(error);
     console.log(error.message);
