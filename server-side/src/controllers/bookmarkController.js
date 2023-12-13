@@ -1,5 +1,6 @@
 const bookmarkModel = require("../models/bookmarkModel");
 const Hotel = require("../models/hotelmodel/hotelModel");
+const TourInfo = require("../models/tourmodel/tourInfoModel")
 
 //  add hotel to bookmark
 exports.addToHotelBookmark = async (req, res, next) => {
