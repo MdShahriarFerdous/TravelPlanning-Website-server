@@ -36,9 +36,8 @@ const tourListCardSchema = new mongoose.Schema(
 			trim: true,
 		},
 		maxPeople: {
-			type: String,
-			required: true,
-			trim: true,
+			type: Number,
+			default: 1,
 		},
 		notes: {
 			type: String,
