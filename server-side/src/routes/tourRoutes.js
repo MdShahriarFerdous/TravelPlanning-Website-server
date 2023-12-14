@@ -21,6 +21,7 @@ const {
 	getPersonPayData,
 	tourInfoByID,
 	deleteTourBooking,
+	tourTypeCard,
 } = require("../controllers/tourControllers");
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddlewares");
 const router = express.Router();
@@ -51,9 +52,12 @@ router.post(
 //tour card list create
 router.post("/create-tourCardList", requireSignIn, isAdmin, tourCard);
 
+//tour type card create
+// router.post("/create-tourTypeCard", tourTypeCard);
+
 //show all tour lists
 router.get(
-	"/show-tourCardList/:tourMatchingCode/:pageNo/:perPage/:searchKeyword",
+	"/show-tourCardList/:pageNo/:perPage/:searchKeyword",
 	requireSignIn,
 	matchedLocationTourLists
 );

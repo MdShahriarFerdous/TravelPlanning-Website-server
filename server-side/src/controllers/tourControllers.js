@@ -10,6 +10,7 @@ const VehiclePrice = require("../models/tourmodel/vehiclePriceModel");
 const TourBooking = require("../models/tourmodel/tourBookingModel");
 const TourListCard = require("../models/tourmodel/tourListCardModel");
 const TourThumbnail = require("../models/tourmodel/tourThumbnailModel");
+const TourTypeCard = require("../models/tourmodel/tourTypeCardModel");
 
 //create foodmenu for particular tour
 exports.tourFoodMenu = async (req, res, next) => {
@@ -579,7 +580,7 @@ exports.tourCard = async (req, res, next) => {
 	try {
 		const {
 			tourInfoId,
-			tourMatchingCode,
+			tourType,
 			title,
 			image,
 			locationName,
@@ -591,7 +592,7 @@ exports.tourCard = async (req, res, next) => {
 
 		const createdTourCard = await new TourListCard({
 			tourInfoId,
-			tourMatchingCode,
+			tourType,
 			title,
 			image,
 			locationName,
@@ -601,7 +602,7 @@ exports.tourCard = async (req, res, next) => {
 			notes,
 		}).save();
 
-		res.status(200).json({
+		res.status(201).json({
 			status: "Success",
 			message: "Tour list card created",
 			createdTourCard,
@@ -612,18 +613,36 @@ exports.tourCard = async (req, res, next) => {
 	}
 };
 
+//create tour type card
+// exports.tourTypeCard = async (req, res, next) => {
+// 	try {
+// 		const { tourType, image } = req.body;
+
+// 		const createdTourTypeCard = await new TourTypeCard({
+// 			tourType,
+// 			image,
+// 		}).save();
+
+// 		res.status(201).json({
+// 			status: "Success",
+// 			message: "Tour type card created",
+// 			createdTourTypeCard,
+// 		});
+// 	} catch (error) {
+// 		console.log(error);
+// 		next(error);
+// 	}
+// };
+
 //show all matching code tour cards after clicking on thumbnail
 exports.matchedLocationTourLists = async (req, res, next) => {
 	try {
-		const { tourMatchingCode, searchKeyword, pageNo, perPage } = req.params;
+		const { searchKeyword, pageNo, perPage } = req.params;
 		const pageNumber = Number(pageNo) || 1;
 		const perPageNumber = Number(perPage) || 10;
 		const skipRows = (pageNumber - 1) * perPageNumber;
 
 		const { checked } = req.body;
-
-		// Match query for tourMatchingCode
-		const matchQuery = { tourMatchingCode: { $eq: tourMatchingCode } };
 
 		// Build the search query
 		let searchQuery = {};
@@ -637,15 +656,20 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 			];
 		}
 
-		// Combine match and search queries
-		const combinedQuery = { $and: [matchQuery, searchQuery] };
-
-		if (checked.length > 0) {
-			// Assuming startingPrice is a numeric field
-			combinedQuery.$and.push({
-				startingPrice: { $gte: checked[0], $lte: checked[1] },
-			});
-		}
+		// Combine search query with price range condition
+		const combinedQuery = {
+			$and: [
+				searchQuery,
+				checked.length > 0
+					? {
+							startingPrice: {
+								$gte: checked[0],
+								$lte: checked[1],
+							},
+					  }
+					: {},
+			],
+		};
 
 		// Execute aggregation pipeline
 		const toursCardLists = await TourListCard.aggregate([
@@ -660,6 +684,27 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 		res.status(200).json({
 			total: totalCount,
 			tourCardData: toursCardLists,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+//tour list by tour types
+exports.tourListsByType = async (req, res, next) => {
+	try {
+		const { tourType } = req.params;
+
+		// Match query for tourMatchingCode
+		const matchQuery = { tourType: { $eq: tourType } };
+
+		const tourLists = TourListCard.aggregate([{ $match: matchQuery }]);
+
+		res.status(200).json({
+			status: "Success",
+			message: "Tour type lists",
+			tourLists,
 		});
 	} catch (error) {
 		console.log(error);

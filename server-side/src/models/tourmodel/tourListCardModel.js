@@ -1,14 +1,13 @@
 const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Schema;
 
 const tourListCardSchema = new mongoose.Schema(
 	{
 		tourInfoId: {
-			type: ObjectId,
-			ref: "TourInfo",
-			unique: true,
+			type: String,
+			required: true,
+			trim: true,
 		},
-		tourMatchingCode: {
+		tourType: {
 			type: String,
 			required: true,
 			trim: true,
