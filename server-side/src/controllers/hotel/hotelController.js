@@ -2,7 +2,6 @@ const Hotel = require("../../models/hotelmodel/hotelModel");
 const Location = require("../../models/LocationModel");
 const { cloudinaryFolder, defaultPageSize } = require("../../../secrets");
 const cloudinary = require("../../helpers/cloudinaryConfig");
-const { ObjectId } = require("mongoose").Types;
 const {
   updateSrcCloudinary,
   deleteSrcCloudinary,
