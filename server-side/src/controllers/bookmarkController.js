@@ -1,4 +1,6 @@
 const bookmarkModel = require("../models/bookmarkModel");
+const Hotel = require("../models/hotelmodel/hotelModel");
+const TourInfo = require("../models/tourmodel/tourInfoModel")
 
 //  add hotel to bookmark
 exports.addToHotelBookmark = async (req, res, next) => {
@@ -7,13 +9,23 @@ exports.addToHotelBookmark = async (req, res, next) => {
     const userId = req.user._id;
     const { hotelId } = req.params;
 
+    // search hotelInfo
+    const search = await Hotel.findOne({ _id: hotelId });
+
+    if (!search) {
+      return res.json({
+        error: "Hotel ID not found",
+      });
+    }
+    const foundHotelId = search._id;
+
     // insert a new hotel to bookmark
     await bookmarkModel.updateOne(
       { userId },
       {
         $set: { userId },
         // add hotelId to the bookmark
-        $addToSet: { hotelId },
+        $addToSet: { hotelId: foundHotelId },
       },
       { upsert: true }
     );
@@ -36,13 +48,23 @@ exports.addToTourBookmark = async (req, res, next) => {
     const userId = req.user._id;
     const { tourId } = req.params;
 
+    // search tourInfo
+    const search = await TourInfo.findOne({ tourId });
+
+    if (!search) {
+      return res.json({
+        error: "Tour package info not found",
+      });
+    }
+    const foundTourId = search._id;
+
     // insert a new hotel to bookmark
     await bookmarkModel.updateOne(
       { userId },
       {
         $set: { userId },
         // add tourId to the bookmark
-        $addToSet: { tourId },
+        $addToSet: { tourId: foundTourId },
       },
       { upsert: true }
     );
@@ -62,14 +84,37 @@ exports.addToTourBookmark = async (req, res, next) => {
 exports.getAllBookmarks = async (req, res, next) => {
   try {
     const userId = req.user._id;
+    console.log(req.query);
 
-    // find all bookmarks for the specified user ID
-    let data = await bookmarkModel.findOne({ userId });
+    const { type } = req.query || {};
+    if (!type) {
+      let data = await bookmarkModel.findOne({ userId });
 
-    res.status(200).json({
-      status: "success",
-      data: data,
-    });
+      return res.status(200).json({
+        status: "success",
+        data: data,
+      });
+    } else if (type === "tour") {
+      let data = await bookmarkModel
+        .findOne({ userId })
+        .populate("tourId", "title typeOfTour about")
+        .select("tourId");
+
+      return res.status(200).json({
+        status: "success",
+        data: data,
+      });
+    } else if (type === "hotel") {
+      let data = await bookmarkModel
+        .findOne({ userId })
+        .populate("hotelId", "name")
+        .select("hotelId");
+
+      return res.status(200).json({
+        status: "success",
+        data: data,
+      });
+    }
   } catch (error) {
     next(error);
     console.log(error.message);

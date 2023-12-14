@@ -12,7 +12,8 @@ exports.create = async (req, res) => {
             airline_code,
             email,
             phone,
-            address
+            address,
+            logo
         } = req.body;
 
         // Check if any of the fields already exist
@@ -36,7 +37,8 @@ exports.create = async (req, res) => {
             airline_code,
             email,
             phone,
-            address
+            address,
+            logo
         }).save();
 
         // Check if airline is created successfully
