@@ -179,7 +179,7 @@ exports.userLogin = async (req, res, next) => {
 		}
 
 		//generate token for user
-		const createToken = createJsonWebToken(
+		const token = createJsonWebToken(
 			{ _id: user._id },
 			jwtSecretKey,
 			jwtExpirationTime
@@ -196,7 +196,7 @@ exports.userLogin = async (req, res, next) => {
 				isAdmin: user.isAdmin,
 				image: userProfile.image,
 			},
-			createToken,
+			token,
 		});
 	} catch (error) {
 		next(error);
