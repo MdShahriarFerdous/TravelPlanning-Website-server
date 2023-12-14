@@ -3,11 +3,11 @@ const mongoose = require("mongoose");
 const hotelReviewSchema = new mongoose.Schema(
   {
     hotelId: {
-      type: ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Hotel",
     },
     userId: {
-      type: ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
     reviewTitle: {

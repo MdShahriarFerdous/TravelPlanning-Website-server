@@ -2,13 +2,12 @@ const mongoose = require("mongoose");
 
 const hotelBookingSchema = new mongoose.Schema(
   {
-    // , ,, , , , ,, , checkin, check out, status
     hotelId: {
-      type: ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Hotel",
     },
     roomSubCategoryId: {
-      type: ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "RoomSubCategory",
     },
     firstName: {

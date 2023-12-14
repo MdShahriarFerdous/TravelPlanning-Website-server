@@ -35,6 +35,18 @@ const hotelSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // if at least 1 room left, this won't update
+    // it will update only if a no rooms left
+    // when 0 rooms left it will available on the next date of
+    // hotel booking last check out date
+    availableFrom: {
+      type: Date,
+      default: "2023-12-14",
+    },
+    availableRooms: {
+      type: Number,
+      default: 30,
+    },
   },
   {
     timestamps: true,
