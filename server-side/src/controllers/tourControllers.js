@@ -10,6 +10,7 @@ const VehiclePrice = require("../models/tourmodel/vehiclePriceModel");
 const TourBooking = require("../models/tourmodel/tourBookingModel");
 const TourListCard = require("../models/tourmodel/tourListCardModel");
 const TourThumbnail = require("../models/tourmodel/tourThumbnailModel");
+const TourTypeCard = require("../models/tourmodel/tourTypeCardModel");
 
 //create foodmenu for particular tour
 exports.tourFoodMenu = async (req, res, next) => {
@@ -391,84 +392,120 @@ exports.calculateTotalCost = async (req, res, next) => {
 	try {
 		const { tourId, adultNo, childrenNo, packageName, vehicleOption } =
 			req.params;
-		const adultPersonCount = Number(adultNo) || 1;
-		const childrenCount = Number(childrenNo) || 0;
 
-		const personPayChart = await TourPersonPrice.aggregate([
-			{ $match: { tourId: { $eq: `${tourId}` } } },
-			{ $match: { packageName: { $eq: `${packageName}` } } },
-			{
-				$project: {
-					_id: 0,
-					adultPay: {
-						$cond: [
-							{ $gt: [adultPersonCount, 0] },
-							"$adultPay",
-							null,
-						],
-					},
-					childrenPay: {
-						$cond: [
-							{ $gt: [childrenCount, 0] },
-							"$childrenPay",
-							null,
-						],
+		// Default values
+		const isDefaultValues =
+			Number(adultNo) === 1 &&
+			Number(childrenNo) === 0 &&
+			packageName === "Economy Package" &&
+			vehicleOption === "No";
+
+		if (isDefaultValues) {
+			const defaultAdultPay = await TourPersonPrice.aggregate([
+				{ $match: { tourId: { $eq: `${tourId}` } } },
+				{ $match: { packageName: { $eq: "Economy Package" } } },
+				{
+					$project: {
+						_id: 0,
+						adultPay: {
+							$cond: [{ $gt: [1, 0] }, "$adultPay", null],
+						},
 					},
 				},
-			},
-		]);
+			]);
 
-		const vehiclePayChart = await VehiclePrice.aggregate([
-			{ $match: { tourId: `${tourId}` } },
-			{
-				$project: {
-					_id: 0,
-					vehiclePrice: {
-						$cond: {
-							if: { $eq: [`$vehicle1Name`, vehicleOption] },
-							then: "$vehicle1Price",
-							else: {
-								$cond: {
-									if: {
-										$eq: [`$vehicle2Name`, vehicleOption],
+			res.status(200).json({
+				status: "Success",
+				message: "Adult Pay for Default Values",
+				totalCost: defaultAdultPay[0]?.adultPay || 0,
+			});
+		} else {
+			const adultPersonCount = Number(adultNo) || 1;
+			const childrenCount = Number(childrenNo) || 0;
+
+			const personPayChart = await TourPersonPrice.aggregate([
+				{ $match: { tourId: { $eq: `${tourId}` } } },
+				{ $match: { packageName: { $eq: `${packageName}` } } },
+				{
+					$project: {
+						_id: 0,
+						adultPay: {
+							$cond: [
+								{ $gt: [adultPersonCount, 0] },
+								"$adultPay",
+								null,
+							],
+						},
+						childrenPay: {
+							$cond: [
+								{ $gt: [childrenCount, 0] },
+								"$childrenPay",
+								null,
+							],
+						},
+					},
+				},
+			]);
+
+			const vehiclePayChart = await VehiclePrice.aggregate([
+				{ $match: { tourId: `${tourId}` } },
+				{
+					$project: {
+						_id: 0,
+						vehiclePrice: {
+							$cond: {
+								if: { $eq: [`$vehicle1Name`, vehicleOption] },
+								then: "$vehicle1Price",
+								else: {
+									$cond: {
+										if: {
+											$eq: [
+												`$vehicle2Name`,
+												vehicleOption,
+											],
+										},
+										then: "$vehicle2Price",
+										else: "$vehicle3Price",
 									},
-									then: "$vehicle2Price",
-									else: "$vehicle3Price",
 								},
 							},
 						},
 					},
 				},
-			},
-		]);
-		const targetVehiclePrice = vehiclePayChart[0]?.vehiclePrice;
+			]);
+			const targetVehiclePrice = vehiclePayChart[0]?.vehiclePrice;
 
-		const selectedPackagePrice = await PackageOption.aggregate([
-			{ $match: { tourId: { $eq: `${tourId}` } } },
-			{ $match: { packageName: { $eq: `${packageName}` } } },
-			{
-				$project: {
-					_id: 0,
-					packagePrice: 1,
+			const selectedPackagePrice = await PackageOption.aggregate([
+				{ $match: { tourId: { $eq: `${tourId}` } } },
+				{ $match: { packageName: { $eq: `${packageName}` } } },
+				{
+					$project: {
+						_id: 0,
+						packagePrice: 1,
+					},
 				},
-			},
-		]);
+			]);
 
-		// Calculate total cost
-		const totalCost =
-			adultPersonCount * (personPayChart[0]?.adultPay || 0) +
-			childrenCount * (personPayChart[0]?.childrenPay || 0) +
-			(selectedPackagePrice[0]?.packagePrice || 0) +
-			(targetVehiclePrice || 0);
+			// Calculate total cost
+			const totalCost =
+				adultPersonCount * (personPayChart[0]?.adultPay || 0) +
+				childrenCount * (personPayChart[0]?.childrenPay || 0) +
+				(selectedPackagePrice[0]?.packagePrice || 0) +
+				(targetVehiclePrice || 0);
 
-		res.status(200).json({
-			status: "Success",
-			message: "Total Cost",
-			totalCost,
-		});
+			res.status(200).json({
+				status: "Success",
+				message: "Total Cost",
+				totalCost,
+			});
+		}
 	} catch (error) {
-		console.log(error);
-		next(error);
+		console.error("Error in calculateTotalCost:", error);
+		res.status(500).json({
+			status: "Error",
+			message: "Internal Server Error",
+			error: error.message,
+		});
 	}
 };
 
@@ -543,7 +580,7 @@ exports.tourCard = async (req, res, next) => {
 	try {
 		const {
 			tourInfoId,
-			tourMatchingCode,
+			tourType,
 			title,
 			image,
 			locationName,
@@ -555,7 +592,7 @@ exports.tourCard = async (req, res, next) => {
 
 		const createdTourCard = await new TourListCard({
 			tourInfoId,
-			tourMatchingCode,
+			tourType,
 			title,
 			image,
 			locationName,
@@ -565,7 +602,7 @@ exports.tourCard = async (req, res, next) => {
 			notes,
 		}).save();
 
-		res.status(200).json({
+		res.status(201).json({
 			status: "Success",
 			message: "Tour list card created",
 			createdTourCard,
@@ -576,18 +613,36 @@ exports.tourCard = async (req, res, next) => {
 	}
 };
 
+//create tour type card
+// exports.tourTypeCard = async (req, res, next) => {
+// 	try {
+// 		const { tourType, image } = req.body;
+
+// 		const createdTourTypeCard = await new TourTypeCard({
+// 			tourType,
+// 			image,
+// 		}).save();
+
+// 		res.status(201).json({
+// 			status: "Success",
+// 			message: "Tour type card created",
+// 			createdTourTypeCard,
+// 		});
+// 	} catch (error) {
+// 		console.log(error);
+// 		next(error);
+// 	}
+// };
+
 //show all matching code tour cards after clicking on thumbnail
 exports.matchedLocationTourLists = async (req, res, next) => {
 	try {
-		const { tourMatchingCode, searchKeyword, pageNo, perPage } = req.params;
+		const { searchKeyword, pageNo, perPage } = req.params;
 		const pageNumber = Number(pageNo) || 1;
 		const perPageNumber = Number(perPage) || 10;
 		const skipRows = (pageNumber - 1) * perPageNumber;
 
 		const { checked } = req.body;
-
-		// Match query for tourMatchingCode
-		const matchQuery = { tourMatchingCode: { $eq: tourMatchingCode } };
 
 		// Build the search query
 		let searchQuery = {};
@@ -601,15 +656,20 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 			];
 		}
 
-		// Combine match and search queries
-		const combinedQuery = { $and: [matchQuery, searchQuery] };
-
-		if (checked.length > 0) {
-			// Assuming startingPrice is a numeric field
-			combinedQuery.$and.push({
-				startingPrice: { $gte: checked[0], $lte: checked[1] },
-			});
-		}
+		// Combine search query with price range condition
+		const combinedQuery = {
+			$and: [
+				searchQuery,
+				checked.length > 0
+					? {
+							startingPrice: {
+								$gte: checked[0],
+								$lte: checked[1],
+							},
+					  }
+					: {},
+			],
+		};
 
 		// Execute aggregation pipeline
 		const toursCardLists = await TourListCard.aggregate([
@@ -624,6 +684,27 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 		res.status(200).json({
 			total: totalCount,
 			tourCardData: toursCardLists,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+//tour list by tour types
+exports.tourListsByType = async (req, res, next) => {
+	try {
+		const { tourType } = req.params;
+
+		// Match query for tourMatchingCode
+		const matchQuery = { tourType: { $eq: tourType } };
+
+		const tourLists = TourListCard.aggregate([{ $match: matchQuery }]);
+
+		res.status(200).json({
+			status: "Success",
+			message: "Tour type lists",
+			tourLists,
 		});
 	} catch (error) {
 		console.log(error);
