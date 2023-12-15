@@ -794,7 +794,6 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 				{ title: searchRegex },
 				{ locationName: searchRegex },
 				{ durations: searchRegex },
-				{ maxPeople: searchRegex },
 			];
 		}
 
