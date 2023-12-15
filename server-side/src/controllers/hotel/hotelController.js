@@ -2,11 +2,11 @@ const Hotel = require("../../models/hotelmodel/hotelModel");
 const Location = require("../../models/LocationModel");
 const { cloudinaryFolder, defaultPageSize } = require("../../../secrets");
 const cloudinary = require("../../helpers/cloudinaryConfig");
-const { ObjectId } = require("mongoose").Types;
 const {
   updateSrcCloudinary,
   deleteSrcCloudinary,
 } = require("../../utilities/updateCloudinaryImage");
+const { isValidDateFormat } = require("../../helpers/checkDateFormat");
 const hotelController = {
   // View a Single Hotel
   read: async (req, res, next) => {
@@ -36,13 +36,13 @@ const hotelController = {
   list: async (req, res, next) => {
     try {
       const pageSize = Number(defaultPageSize); // Number of items per page
-      const { location, pageNumber } = req.query || {};
+      const { location, guests, startDate, pageNumber } = req.query || {};
       const page = Number(pageNumber) || 1;
       let count = 0;
       let totalPages = 0;
       let hotels = [];
 
-      // if only location provided
+      // if no location provided
       if (!location) {
         count = await Hotel.countDocuments({
           status: true,
@@ -55,28 +55,102 @@ const hotelController = {
           .limit(pageSize)
           .skip(pageSize * (page - 1));
       }
-      // need to type full word
+
       const hotelLocation = await Location.findOne({
-        location_name: { $regex: new RegExp(`^${location}$`, 'i') },
+        location_name: { $regex: new RegExp(`^${location}$`, "i") },
       });
-      // no need to type full word
-      // const hotelLocation = await Location.findOne({
-      //   location_name: { $regex: new RegExp(location, "i") },
-      // });
       if (location && hotelLocation) {
-        count = await Hotel.countDocuments({
-          location: hotelLocation._id,
-          status: true,
-        });
-        totalPages = Math.ceil(count / pageSize);
-        hotels = await Hotel.find({
-          location: hotelLocation._id,
-          status: true,
-        })
-          .populate("location", "location_name")
-          .limit(pageSize)
-          .skip(pageSize * (page - 1));
+        if (guests) {
+          if (startDate) {
+            // if location , guests Number & startDate provided
+            const guestsNumber = Number(guests);
+            if (isNaN(guestsNumber)) {
+              return res.json({
+                error: "Guests Number Must be a Type of Number !",
+              });
+            }
+            if (guestsNumber <= 0) {
+              return res.json({
+                error: "At Least 1 Guests Number Should be Provided !",
+              });
+            }
+            if (!isValidDateFormat(startDate, "YYYY-MM-DD")) {
+              return res.json({
+                error: "Please Provide a Valid Date!",
+              });
+            }
+            const criteria = {
+              location: hotelLocation._id,
+              availableRooms: { $gte: guests },
+              availableFrom: { $lte: new Date(startDate) },
+              status: true,
+            };
+            count = await Hotel.countDocuments(criteria);
+            totalPages = Math.ceil(count / pageSize);
+            hotels = await Hotel.find(criteria)
+              .populate("location", "location_name")
+              .limit(pageSize)
+              .skip(pageSize * (page - 1));
+          } else {
+            // if location & guests Number provided, but not Start Date provided
+            const guestsNumber = Number(guests);
+            if (isNaN(guestsNumber)) {
+              return res.json({
+                error: "Guests Number Must be a Type of Number !",
+              });
+            }
+            if (guestsNumber <= 0) {
+              return res.json({
+                error: "At Least 1 Guests Number Should be Provided !",
+              });
+            }
+            const criteria = {
+              availableRooms: { $gte: guests },
+              location: hotelLocation._id,
+              status: true,
+            };
+            count = await Hotel.countDocuments(criteria);
+            totalPages = Math.ceil(count / pageSize);
+            hotels = await Hotel.find(criteria)
+              .populate("location", "location_name")
+              .limit(pageSize)
+              .skip(pageSize * (page - 1));
+          }
+        } else {
+          if (startDate) {
+            // if location , start date provided, but not guests Number provided
+            if (!isValidDateFormat(startDate, "YYYY-MM-DD")) {
+              return res.json({
+                error: "Please Provide a Valid Date!",
+              });
+            }
+            const criteria = {
+              availableFrom: { $lte: new Date(startDate) },
+              location: hotelLocation._id,
+              status: true,
+            };
+            count = await Hotel.countDocuments(criteria);
+            totalPages = Math.ceil(count / pageSize);
+            hotels = await Hotel.find(criteria)
+              .populate("location", "location_name")
+              .limit(pageSize)
+              .skip(pageSize * (page - 1));
+          } else {
+            // if location only provided
+            const criteria = {
+              location: hotelLocation._id,
+              status: true,
+            };
+            count = await Hotel.countDocuments(criteria);
+            totalPages = Math.ceil(count / pageSize);
+            hotels = await Hotel.find(criteria)
+              .populate("location", "location_name")
+              .limit(pageSize)
+              .skip(pageSize * (page - 1));
+          }
+        }
       }
+
       res.status(200).json({
         hotels,
         page,

@@ -76,12 +76,12 @@ exports.userRegister = async (req, res, next) => {
 //verify user through activation link
 exports.userVerify = async (req, res, next) => {
 	try {
-		const { token } = req.body;
+		const { browserToken } = req.body;
 		//validation
 		if (!token) {
 			return res.json({ error: "Token not found!" });
 		}
-		const decoded = jwt.verify(token, jwtSecretKey);
+		const decoded = jwt.verify(browserToken, jwtSecretKey);
 		//validation
 		if (!decoded) {
 			return res.json({ error: "Unable to verify user!" });
@@ -119,7 +119,7 @@ exports.userVerify = async (req, res, next) => {
 		// console.log(registerUser);
 
 		//generate token for user
-		const createdToken = createJsonWebToken(
+		const token = createJsonWebToken(
 			{ _id: registerUser._id },
 			jwtSecretKey,
 			jwtExpirationTime
@@ -132,7 +132,7 @@ exports.userVerify = async (req, res, next) => {
 				username: registerUser.username,
 				email: registerUser.email,
 			},
-			createdToken,
+			token,
 		});
 	} catch (error) {
 		if (error.name === "TokenExpiredError") {
@@ -179,7 +179,7 @@ exports.userLogin = async (req, res, next) => {
 		}
 
 		//generate token for user
-		const createToken = createJsonWebToken(
+		const token = createJsonWebToken(
 			{ _id: user._id },
 			jwtSecretKey,
 			jwtExpirationTime
@@ -196,7 +196,7 @@ exports.userLogin = async (req, res, next) => {
 				isAdmin: user.isAdmin,
 				image: userProfile.image,
 			},
-			createToken,
+			token,
 		});
 	} catch (error) {
 		next(error);
