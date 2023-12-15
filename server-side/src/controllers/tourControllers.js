@@ -402,8 +402,12 @@ exports.calculateTotalCost = async (req, res, next) => {
 
 		if (isDefaultValues) {
 			const defaultAdultPay = await TourPersonPrice.aggregate([
-				{ $match: { tourId: { $eq: `${tourId}` } } },
-				{ $match: { packageName: { $eq: "Economy Package" } } },
+				{
+					$match: {
+						tourId: `${tourId}`,
+						packageName: "Economy Package",
+					},
+				},
 				{
 					$project: {
 						_id: 0,
@@ -419,13 +423,90 @@ exports.calculateTotalCost = async (req, res, next) => {
 				message: "Adult Pay for Default Values",
 				totalCost: defaultAdultPay[0]?.adultPay || 0,
 			});
+		} else if (
+			packageName &&
+			adultNo &&
+			childrenNo === "0" &&
+			vehicleOption === "No"
+		) {
+			// Handle scenario with packageName, adultNo, childrenNo = 0, and vehicleOption = "No"
+			const personPayChart = await TourPersonPrice.aggregate([
+				{
+					$match: {
+						tourId: `${tourId}`,
+						packageName: `${packageName}`,
+					},
+				},
+				{
+					$project: {
+						_id: 0,
+						adultPay: {
+							$cond: [
+								{ $gt: [Number(adultNo), 0] },
+								"$adultPay",
+								null,
+							],
+						},
+					},
+				},
+			]);
+
+			res.status(200).json({
+				status: "Success",
+				message: "Adult Pay for Package and Adult Count",
+				totalCost: personPayChart[0]?.adultPay || 0,
+			});
+		} else if (packageName && adultNo && childrenNo) {
+			// Handle scenario with packageName, adultNo, and childrenNo
+			const personPayChart = await TourPersonPrice.aggregate([
+				{
+					$match: {
+						tourId: `${tourId}`,
+						packageName: `${packageName}`,
+					},
+				},
+				{
+					$project: {
+						_id: 0,
+						adultPay: {
+							$cond: [
+								{ $gt: [Number(adultNo), 0] },
+								"$adultPay",
+								null,
+							],
+						},
+						childrenPay: {
+							$cond: [
+								{ $gt: [Number(childrenNo), 0] },
+								"$childrenPay",
+								null,
+							],
+						},
+					},
+				},
+			]);
+
+			const totalCost =
+				(personPayChart[0]?.adultPay || 0) +
+				(personPayChart[0]?.childrenPay || 0);
+
+			res.status(200).json({
+				status: "Success",
+				message: "Adult and Children Pay for Package",
+				totalCost: totalCost,
+			});
 		} else {
+			// Handle the existing calculation logic for other scenarios
 			const adultPersonCount = Number(adultNo) || 1;
 			const childrenCount = Number(childrenNo) || 0;
 
 			const personPayChart = await TourPersonPrice.aggregate([
-				{ $match: { tourId: { $eq: `${tourId}` } } },
-				{ $match: { packageName: { $eq: `${packageName}` } } },
+				{
+					$match: {
+						tourId: `${tourId}`,
+						packageName: `${packageName}`,
+					},
+				},
 				{
 					$project: {
 						_id: 0,
