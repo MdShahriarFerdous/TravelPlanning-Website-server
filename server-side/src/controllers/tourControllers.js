@@ -387,7 +387,7 @@ exports.tourBooking = async (req, res, next) => {
 		next(error);
 	}
 };
-//calculate total cost only
+
 exports.calculateTotalCost = async (req, res, next) => {
 	try {
 		const { tourId, adultNo, childrenNo, packageName, vehicleOption } =
@@ -426,10 +426,10 @@ exports.calculateTotalCost = async (req, res, next) => {
 		} else if (
 			packageName &&
 			adultNo &&
-			childrenNo === "0" &&
+			childrenNo === 0 &&
 			vehicleOption === "No"
 		) {
-			// Handle scenario with packageName, adultNo, childrenNo = 0, and vehicleOption = "No"
+			// Handle scenario with packageName and adultNo only
 			const personPayChart = await TourPersonPrice.aggregate([
 				{
 					$match: {
@@ -451,12 +451,21 @@ exports.calculateTotalCost = async (req, res, next) => {
 				},
 			]);
 
+			// Calculate total cost by multiplying adultNo with adultPay
+			const totalCost =
+				(personPayChart[0]?.adultPay || 0) * Number(adultNo);
+
 			res.status(200).json({
 				status: "Success",
 				message: "Adult Pay for Package and Adult Count",
-				totalCost: personPayChart[0]?.adultPay || 0,
+				totalCost: totalCost,
 			});
-		} else if (packageName && adultNo && childrenNo) {
+		} else if (
+			packageName &&
+			adultNo &&
+			childrenNo &&
+			vehicleOption === "No"
+		) {
 			// Handle scenario with packageName, adultNo, and childrenNo
 			const personPayChart = await TourPersonPrice.aggregate([
 				{
@@ -486,13 +495,77 @@ exports.calculateTotalCost = async (req, res, next) => {
 				},
 			]);
 
+			// Calculate total cost by adding up adultPay and childrenPay
 			const totalCost =
-				(personPayChart[0]?.adultPay || 0) +
-				(personPayChart[0]?.childrenPay || 0);
+				(personPayChart[0]?.adultPay || 0) * Number(adultNo) +
+				(personPayChart[0]?.childrenPay || 0) * Number(childrenNo);
 
 			res.status(200).json({
 				status: "Success",
 				message: "Adult and Children Pay for Package",
+				totalCost: totalCost,
+			});
+		} else if (
+			packageName &&
+			adultNo &&
+			childrenNo === "0" &&
+			vehicleOption
+		) {
+			const personPayChart = await TourPersonPrice.aggregate([
+				{
+					$match: {
+						tourId: `${tourId}`,
+						packageName: `${packageName}`,
+					},
+				},
+				{
+					$project: {
+						_id: 0,
+						adultPay: {
+							$cond: [
+								{ $gt: [Number(adultNo), 0] },
+								"$adultPay",
+								null,
+							],
+						},
+					},
+				},
+			]);
+			const vehiclePayChart = await VehiclePrice.aggregate([
+				{ $match: { tourId: `${tourId}` } },
+				{
+					$project: {
+						_id: 0,
+						vehiclePrice: {
+							$cond: {
+								if: { $eq: [`$vehicle1Name`, vehicleOption] },
+								then: "$vehicle1Price",
+								else: {
+									$cond: {
+										if: {
+											$eq: [
+												`$vehicle2Name`,
+												vehicleOption,
+											],
+										},
+										then: "$vehicle2Price",
+										else: "$vehicle3Price",
+									},
+								},
+							},
+						},
+					},
+				},
+			]);
+			const targetVehiclePrice = vehiclePayChart[0]?.vehiclePrice;
+
+			const totalCost =
+				(personPayChart[0]?.adultPay || 0) * Number(adultNo) +
+				targetVehiclePrice;
+
+			res.status(200).json({
+				status: "Success",
+				message: "Cost",
 				totalCost: totalCost,
 			});
 		} else {
@@ -556,22 +629,10 @@ exports.calculateTotalCost = async (req, res, next) => {
 			]);
 			const targetVehiclePrice = vehiclePayChart[0]?.vehiclePrice;
 
-			const selectedPackagePrice = await PackageOption.aggregate([
-				{ $match: { tourId: { $eq: `${tourId}` } } },
-				{ $match: { packageName: { $eq: `${packageName}` } } },
-				{
-					$project: {
-						_id: 0,
-						packagePrice: 1,
-					},
-				},
-			]);
-
 			// Calculate total cost
 			const totalCost =
 				adultPersonCount * (personPayChart[0]?.adultPay || 0) +
 				childrenCount * (personPayChart[0]?.childrenPay || 0) +
-				(selectedPackagePrice[0]?.packagePrice || 0) +
 				(targetVehiclePrice || 0);
 
 			res.status(200).json({
