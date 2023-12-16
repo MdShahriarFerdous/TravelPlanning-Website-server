@@ -59,10 +59,9 @@ router.post("/create-tourCardList", requireSignIn, isAdmin, tourCard);
 //show all tour card lists by type
 router.get("/show-tourTypeLists/:tourType", tourListsByType);
 
-//show all tour lists
+//search tour lists
 router.get(
 	"/show-tourCardList/:pageNo/:perPage/:searchKeyword",
-	requireSignIn,
 	matchedLocationTourLists
 );
 //particular tourInfo by id
