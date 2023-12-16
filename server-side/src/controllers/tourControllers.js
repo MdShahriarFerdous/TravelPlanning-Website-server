@@ -784,8 +784,6 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 		const perPageNumber = Number(perPage) || 10;
 		const skipRows = (pageNumber - 1) * perPageNumber;
 
-		const { checked } = req.body;
-
 		// Build the search query
 		let searchQuery = {};
 		if (searchKeyword !== "0") {
@@ -798,10 +796,11 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 		}
 
 		// Combine search query with price range condition
+		const { checked } = req.body;
 		const combinedQuery = {
 			$and: [
 				searchQuery,
-				checked.length > 0
+				checked && checked.length > 0
 					? {
 							startingPrice: {
 								$gte: checked[0],
