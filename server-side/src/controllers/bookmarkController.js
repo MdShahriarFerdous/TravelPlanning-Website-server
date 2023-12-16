@@ -97,7 +97,7 @@ exports.getAllBookmarks = async (req, res, next) => {
     } else if (type === "tour") {
       let data = await bookmarkModel
         .findOne({ userId })
-        .populate("tourId", "city title typeOfTour about")
+        .populate("tourId", "tourId city title typeOfTour about")
         .select("tourId");
 
       return res.status(200).json({
@@ -107,7 +107,7 @@ exports.getAllBookmarks = async (req, res, next) => {
     } else if (type === "hotel") {
       let data = await bookmarkModel
         .findOne({ userId })
-        .populate("hotelId", "name")
+        .populate("hotelId", "name location rentPerPerson thumbnail")
         .select("hotelId");
 
       return res.status(200).json({
