@@ -1,6 +1,6 @@
 const bookmarkModel = require("../models/bookmarkModel");
 const Hotel = require("../models/hotelmodel/hotelModel");
-const TourInfo = require("../models/tourmodel/tourInfoModel")
+const TourInfo = require("../models/tourmodel/tourInfoModel");
 
 //  add hotel to bookmark
 exports.addToHotelBookmark = async (req, res, next) => {
@@ -97,7 +97,7 @@ exports.getAllBookmarks = async (req, res, next) => {
     } else if (type === "tour") {
       let data = await bookmarkModel
         .findOne({ userId })
-        .populate("tourId", "title typeOfTour about")
+        .populate("tourId", "tourId city title typeOfTour about")
         .select("tourId");
 
       return res.status(200).json({
@@ -107,7 +107,7 @@ exports.getAllBookmarks = async (req, res, next) => {
     } else if (type === "hotel") {
       let data = await bookmarkModel
         .findOne({ userId })
-        .populate("hotelId", "name")
+        .populate("hotelId", "name location rentPerPerson thumbnail")
         .select("hotelId");
 
       return res.status(200).json({
@@ -127,16 +127,22 @@ exports.removeHotelBookmark = async (req, res, next) => {
     const userId = req.user._id;
     const hotelId = req.params.hotelId;
 
-    await bookmarkModel.findOneAndUpdate(
-      { userId },
+    const result = await bookmarkModel.findOneAndUpdate(
+      { userId, hotelId },
       { $pull: { hotelId } },
       { new: true }
     );
 
-    return res.status(200).json({
-      status: "success",
-      message: "Hotel removed from Bookmark",
-    });
+    if (!result) {
+      return res.status(404).json({
+        error: "Hotel Bookmark not found",
+      });
+    } else {
+      return res.status(200).json({
+        status: "success",
+        message: "Hotel removed from Bookmark",
+      });
+    }
   } catch (error) {
     next(error);
     console.log(error.message);
@@ -149,16 +155,29 @@ exports.removeTourBookmark = async (req, res, next) => {
     const userId = req.user._id;
     const tourId = req.params.tourId;
 
-    await bookmarkModel.findOneAndUpdate(
-      { userId },
-      { $pull: { tourId } },
+    // search tourInfo
+    const search = await TourInfo.findOne({ tourId });
+    // console.log(search);
+
+    const foundTourId = search._id;
+    // console.log("tourID: " + foundTourId);
+
+    const result = await bookmarkModel.findOneAndUpdate(
+      { userId, tourId: foundTourId },
+      { $pull: { tourId: foundTourId } },
       { new: true }
     );
 
-    return res.status(200).json({
-      status: "success",
-      message: "Tour removed from Bookmark",
-    });
+    if (!result) {
+      return res.status(404).json({
+        error: "Tour Bookmark not found",
+      });
+    } else {
+      return res.status(200).json({
+        status: "success",
+        message: "Tour removed from Bookmark",
+      });
+    }
   } catch (error) {
     next(error);
     console.log(error.message);
