@@ -360,19 +360,23 @@ exports.searchFlights = async (req, res) => {
 		const sourceDestinationId = new ObjectId(source_destination_id);
 		const destinationId = new ObjectId(destination_id);
 
+
+		// Convert the date in mongodb format
+		const localDate = new Date(journey_date);
+		localDate.setDate(localDate.getDate() + 1)
+		const stringDate = localDate.toISOString()
+		console.log(localDate)
+		const datePart = stringDate.split("T")[0];
+		const modifiedISOString = `${datePart}T00:00:00.000Z`;
+
 		// Build the search criteria
 		const searchCriteria = {
 			source_destination_id: sourceDestinationId,
 			destination_id: destinationId,
-			journey_date: new Date(journey_date),
+			journey_date: new Date(modifiedISOString),
 			flight_class,
 			seatLeft: { $gte: Number(total_travellers) },
 		};
-
-		console.log(searchCriteria);
-
-		// Remove fields with null or undefined values
-		// Object.keys(searchCriteria).forEach((key) => (searchCriteria[key] == null) && delete searchCriteria[key]);
 
 		// Perform the aggregation
 		const flights = await Flight.aggregate([
