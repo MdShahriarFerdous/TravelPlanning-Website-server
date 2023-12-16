@@ -30,6 +30,10 @@ const flightSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    tax: {
+        type: Number,
+        required: true
+    },
     seatLeft: {
         type: Number,
         required: true
