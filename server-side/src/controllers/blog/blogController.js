@@ -1,11 +1,10 @@
 const Blog = require("../../models/blogmodel/blogModel");
 const { defaultPageSize } = require("../../../secrets");
 const { updateSrc, deleteSrc } = require("../../utilities/updateImage");
-const User = require("../../models/usermodel/userModel");
 const cloudinary = require("../../helpers/cloudinaryConfig");
 const { cloudinaryFolder } = require("../../../secrets");
 const UserProfile = require("../../models/usermodel/userProfileModel");
-const BlogCategory = require("../../models/blogmodel/blogCategoryModel");
+const slugify = require("slugify");
 
 const blogController = {
   // Create a Single Blog in Draft Mode
@@ -127,6 +126,7 @@ const blogController = {
         authorProfile,
         category,
         title,
+        slug: slugify(title, { lower: true }),
         details,
         thumbnailImage: thumb,
         coverImage: cover,
@@ -150,7 +150,7 @@ const blogController = {
     try {
       const { blogId } = req.params;
       // Retrieve Blog's Info
-      const blogInfo = await Blog.findOne({ _id: blogId })
+      const blogInfo = await Blog.findOne({ slug: blogId })
         .populate("category", "title")
         .populate("author", "username")
         .populate("authorProfile", "bio image");
@@ -219,7 +219,7 @@ const blogController = {
           .limit(pageSize)
           .skip(pageSize * (page - 1))
           .select(
-            "_id title thumbnailImage author category tags details createdAt"
+            "_id title slug thumbnailImage author category tags details createdAt"
           );
       }
       // if only author provided
@@ -240,7 +240,7 @@ const blogController = {
           .limit(pageSize)
           .skip(pageSize * (page - 1))
           .select(
-            "_id title thumbnailImage author category tags details createdAt"
+            "_id title slug thumbnailImage author category tags details createdAt"
           );
       }
       // if only category provided
@@ -261,7 +261,7 @@ const blogController = {
           .limit(pageSize)
           .skip(pageSize * (page - 1))
           .select(
-            "_id title thumbnailImage author category tags details createdAt"
+            "_id title slug thumbnailImage author category tags details createdAt"
           );
       }
       // if only tag provided
@@ -282,7 +282,7 @@ const blogController = {
           .limit(pageSize)
           .skip(pageSize * (page - 1))
           .select(
-            "_id title thumbnailImage author category tags details createdAt"
+            "_id title slug thumbnailImage author category tags details createdAt"
           );
       } else {
         count = await Blog.countDocuments({ status: true, isGallery: false });
@@ -293,7 +293,7 @@ const blogController = {
           .limit(pageSize)
           .skip(pageSize * (page - 1))
           .select(
-            "_id title thumbnailImage author category tags details createdAt"
+            "_id title slug thumbnailImage author category tags details createdAt"
           );
       }
       res.status(200).json({
@@ -347,7 +347,7 @@ const blogController = {
     try {
       const blogs = await Blog.find({ isFeatured: true, status: true })
         .populate("category", "title")
-        .select("_id title thumbnailImage category  createdAt");
+        .select("_id title slug thumbnailImage category  createdAt");
       res.status(200).json({
         blogs,
       });
@@ -376,7 +376,7 @@ const blogController = {
       const blogs = await Blog.find({})
         .sort({ createdAt: "desc", status: true })
         .limit(5)
-        .select("_id title thumbnailImage createdAt");
+        .select("_id slug title thumbnailImage createdAt");
       res.status(200).json({
         blogs,
       });
@@ -491,6 +491,7 @@ const blogController = {
         });
       }
       if (newTitle && newTitle !== title) {
+        updatedBlogInfo.slug = slugify(newTitle, { lower: true });
         updatedBlogInfo.title = newTitle;
       }
 

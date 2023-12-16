@@ -12,7 +12,11 @@ const {
 const {
   create: createRoomCategory,
   list: roomCategoriesList,
+  deleteAll: deleteAllRoomCategories,
 } = require("../controllers/hotel/roomCategoryController");
+const {
+  create: createRoomSubCategory,
+} = require("../controllers/hotel/roomSubCategoryController");
 
 // Routes for hotels
 router.get("/hotels/:hotelId", read);
@@ -35,13 +39,26 @@ router.delete("/hotels/:hotelId", requireSignIn, isAdmin, deleteByID);
 router.delete("/hotels-all", requireSignIn, isAdmin, deleteAll);
 
 // Routes for Hotel Room Category
-router.get("/roomCategories", roomCategoriesList);
+router.get("/room-categories", roomCategoriesList);
 router.post(
-  "/roomCategories",
+  "/room-categories",
   requireSignIn,
   isAdmin,
   upload("thumbnail", "roomCategory"),
   createRoomCategory
 );
+router.delete(
+  "/room-categories-all",
+  requireSignIn,
+  isAdmin,
+  deleteAllRoomCategories
+);
 
+// Routes for Hotel Room Sub Category
+router.post(
+  "/room-sub-categories",
+  requireSignIn,
+  isAdmin,
+  createRoomSubCategory
+);
 module.exports = router;

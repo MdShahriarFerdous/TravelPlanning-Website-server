@@ -1,12 +1,13 @@
 const Hotel = require("../../models/hotelmodel/hotelModel");
 const Location = require("../../models/LocationModel");
-const { cloudinaryFolder, defaultPageSize } = require("../../../secrets");
+const { cloudinaryFolder } = require("../../../secrets");
 const cloudinary = require("../../helpers/cloudinaryConfig");
 const {
   updateSrcCloudinary,
   deleteSrcCloudinary,
 } = require("../../utilities/updateCloudinaryImage");
 const { isValidDateFormat } = require("../../helpers/checkDateFormat");
+const slugify = require("slugify");
 const hotelController = {
   // View a Single Hotel
   read: async (req, res, next) => {
@@ -14,7 +15,7 @@ const hotelController = {
       const { hotelId } = req.params;
 
       // Retrieve Hotel's Data
-      const hotelData = await Hotel.findOne({ _id: hotelId }).populate(
+      const hotelData = await Hotel.findOne({ slug: hotelId }).populate(
         "location",
         "location_name"
       );
@@ -35,7 +36,7 @@ const hotelController = {
   // List Hotels for public (All with filtering)
   list: async (req, res, next) => {
     try {
-      const pageSize = Number(defaultPageSize); // Number of items per page
+      const pageSize = 6; // Number of items per page
       const { location, guests, startDate, pageNumber } = req.query || {};
       const page = Number(pageNumber) || 1;
       let count = 0;
@@ -237,6 +238,7 @@ const hotelController = {
       // if all validation passed
       const hotel = await Hotel.create({
         name,
+        slug: slugify(name, { lower: true }),
         location: hotelLocation._id,
         rentPerPerson: Number(rent.toFixed(2)),
         thumbnail: thumb,
@@ -276,6 +278,7 @@ const hotelController = {
       }
       const {
         name,
+        slug,
         thumbnail,
         isFeatured,
         isTopRated,
@@ -323,6 +326,7 @@ const hotelController = {
             error: "Hotel Name must be Unique",
           });
         }
+        updatedHotelInfo.slug = slugify(newName, { lower: true });
         updatedHotelInfo.name = newName;
       }
 
