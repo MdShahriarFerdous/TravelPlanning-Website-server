@@ -14,6 +14,7 @@ exports.create = async (req, res) => {
 			destination_id,
 			journey_date,
 			fare,
+			tax,
 			seatLeft,
 			departure_time,
 			arrival_time,
@@ -28,6 +29,7 @@ exports.create = async (req, res) => {
 			"source_destination_id",
 			"destination_id",
 			"fare",
+			"tax",
 			"seatLeft",
 			"departure_time",
 			"arrival_time",
@@ -61,6 +63,7 @@ exports.create = async (req, res) => {
 			destination_id,
 			journey_date,
 			fare,
+			tax,
 			seatLeft,
 			departure_time,
 			arrival_time,
@@ -138,6 +141,7 @@ exports.list = async (req, res) => {
 					source_destination_id: 1,
 					destination_id: 1,
 					fare: 1,
+					tax: 1,
 					seatLeft: 1,
 					departure_time: 1,
 					arrival_time: 1,
@@ -186,23 +190,92 @@ exports.readById = async (req, res) => {
 			return apiResponse.errorResponse(res, "Invalid Flight ID");
 		}
 
-		// Use findById to retrieve the flight by its ID
-		const flight = await Flight.findById(flightId);
+		// Perform the aggregation
+		const flight = await Flight.aggregate([
+			{
+				$match: { _id: new ObjectId(flightId) }
+			},
+			{
+				$lookup: {
+					from: "locations",
+					localField: "source_destination_id",
+					foreignField: "_id",
+					as: "sourceLocation",
+				},
+			},
+			{
+				$lookup: {
+					from: "locations",
+					localField: "destination_id",
+					foreignField: "_id",
+					as: "destinationLocation",
+				},
+			},
+			{
+				$lookup: {
+					from: "planes",
+					localField: "plane_id",
+					foreignField: "_id",
+					as: "planeInfo",
+				},
+			},
+			{
+				$lookup: {
+					from: "airlines",
+					localField: "planeInfo.airline_id",
+					foreignField: "_id",
+					as: "airlineInfo",
+				},
+			},
+			{
+				$unwind: "$airlineInfo",
+			},
+			{
+				$unwind: "$sourceLocation",
+			},
+			{
+				$unwind: "$destinationLocation",
+			},
+			{
+				$unwind: "$planeInfo",
+			},
+			{
+				$project: {
+					_id: 1,
+					flight_number: 1,
+					journey_date: 1,
+					fare: 1,
+					tax: 1,
+					seatLeft: 1,
+					departure_time: 1,
+					arrival_time: 1,
+					flight_class: 1,
+					status: 1,
+					'sourceLocation.location_name': 1,
+					'sourceLocation.latitude': 1,
+					'sourceLocation.longitude': 1,
+					'destinationLocation.location_name': 1,
+					'destinationLocation.latitude': 1,
+					'destinationLocation.longitude': 1,
+					'planeInfo.plane_model': 1,
+					'planeInfo.capacity': 1,
+					'planeInfo.manufacturing_year': 1,
+					'planeInfo.registration_number': 1,
+					'planeInfo.plane_model': 1,
+					'airlineInfo.airline_name': 1,
+					'airlineInfo.logo': 1,
+				},
+			},
+		]);
 
-		// Check if the flight is found
-		if (!flight) {
-			return apiResponse.notFoundResponse(res, "Flight not found");
+		if (flight.length > 0) {
+			return apiResponse.successResponseWithData(res, "Flight search successful!", flight[0]);
+		} else {
+			return apiResponse.errorResponse(res, "No flight found");
 		}
-
-		// Return success response with flight data
-		return apiResponse.successResponseWithData(
-			res,
-			"Flight retrieval by ID successful!",
-			flight
-		);
 	} catch (err) {
 		// Log and handle errors
-		console.error("Error from ReadById:", err.message);
+		console.error("Error from ReadById:", err);
 		return apiResponse.errorResponse(res, "Something went wrong");
 	}
 };

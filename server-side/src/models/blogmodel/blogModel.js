@@ -26,6 +26,12 @@ const blogSchema = mongoose.Schema(
       minLength: [10, "Minimum Length should be 10"],
       maxLength: [50, "Maximum length should be 50"],
     },
+    slug: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+    },
     thumbnailImage: {
       type: String,
     },

@@ -794,7 +794,6 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 				{ title: searchRegex },
 				{ locationName: searchRegex },
 				{ durations: searchRegex },
-				{ maxPeople: searchRegex },
 			];
 		}
 
@@ -841,12 +840,18 @@ exports.tourListsByType = async (req, res, next) => {
 		// Match query for tourMatchingCode
 		const matchQuery = { tourType: { $eq: tourType } };
 
-		const tourLists = TourListCard.aggregate([{ $match: matchQuery }]);
+		const tourLists = await TourListCard.aggregate([
+			{ $match: matchQuery },
+		]);
+
+		// Get total count for pagination
+		const totalCount = await TourListCard.countDocuments(matchQuery);
 
 		res.status(200).json({
 			status: "Success",
 			message: "Tour type lists",
 			tourLists,
+			totalCount,
 		});
 	} catch (error) {
 		console.log(error);

@@ -22,6 +22,7 @@ const {
 	tourInfoByID,
 	deleteTourBooking,
 	tourTypeCard,
+	tourListsByType,
 } = require("../controllers/tourControllers");
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddlewares");
 const router = express.Router();
@@ -54,6 +55,9 @@ router.post("/create-tourCardList", requireSignIn, isAdmin, tourCard);
 
 //tour type card create
 // router.post("/create-tourTypeCard", tourTypeCard);
+
+//show all tour card lists by type
+router.get("/show-tourTypeLists/:tourType", tourListsByType);
 
 //show all tour lists
 router.get(

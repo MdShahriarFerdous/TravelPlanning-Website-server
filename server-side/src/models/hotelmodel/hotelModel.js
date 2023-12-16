@@ -10,6 +10,12 @@ const hotelSchema = new mongoose.Schema(
       minLength: [3, "Minimum Length should be 3"],
       maxLength: [50, "Maximum length should be 50"],
     },
+    slug: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+    },
     location: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Location",
