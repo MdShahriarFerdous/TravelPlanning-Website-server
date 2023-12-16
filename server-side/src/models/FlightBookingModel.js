@@ -32,14 +32,23 @@ const flightBookingSchema = new mongoose.Schema({
         trim: true,
         required: true
     },
+    nid: {
+        type: String,
+        trim: true,
+        required: true
+    },
     seats: {
+        type: Number,
+        required: true
+    },
+    total_fare: {
         type: Number,
         required: true
     },
     status: {
         type: String,
-        enum: ['booked', 'confirmed', 'completed', 'canceled'],
-        default: 'booked'
+        enum: ['pending', 'confirmed', 'completed', 'canceled'],
+        default: 'pending'
     }
 }, {timestamps: true, versionKey: false});
 

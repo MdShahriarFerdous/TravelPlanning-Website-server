@@ -1,44 +1,60 @@
 // Import necessary modules and dependencies
 const FlightBooking = require('../models/FlightBookingModel');
 const apiResponse = require('../helpers/apiResponse');
+const Flight = require("../models/FlightModel");
 const { ObjectId } = require('mongoose').Types;
 
 // Flight Booking Add Controller Function
 exports.create = async (req, res) => {
     try {
-
+        const userId = req.user;
         // Destructure variables from req.body
         const {
             flight_id,
-            created_by,
             first_name,
             last_name,
             phone,
             nationality,
-            seats
+            email,
+            nid,
+            seats,
+            total_fare,
         } = req.body;
 
         // Required field validation
-        const requiredFields = ['flight_id', 'created_by', 'first_name', 'last_name', 'phone', 'nationality', 'seats'];
+        const requiredFields = ['flight_id', 'first_name', 'last_name', 'phone', 'email', 'nationality', 'nid', 'total_fare'];
         for (const field of requiredFields) {
             if (!req.body[field]) {
                 return apiResponse.errorResponse(res, `${field} is required`);
             }
         }
 
+        const updatedSeatLeft = { $inc: { seatLeft: -seats } };
+
         // Create a new flight booking
         const newBooking = await new FlightBooking({
+            created_by: userId,
             flight_id,
-            created_by,
             first_name,
             last_name,
             phone,
             nationality,
-            seats
+            nid,
+            email,
+            seats,
+            total_fare
         }).save();
+
+
+        // Use findOneAndUpdate to update the flight by its ID
+        const updatedFlight = await Flight.findByIdAndUpdate(
+            flight_id,
+            updatedSeatLeft,
+            { new: true, runValidators: true }
+        );
         
         // Check if flight booking is created successfully
-        if (newBooking) {
+        if (newBooking && updatedFlight) {
             return apiResponse.successResponse(res, 'Flight Booking successful!');
         }
 
@@ -61,20 +77,20 @@ exports.list = async (req, res) => {
                     as: 'flightInfo',
                 },
             },
-            // {
-            //     $lookup: {
-            //         from: 'users',
-            //         localField: 'created_by',
-            //         foreignField: '_id',
-            //         as: 'userInfo',
-            //     },
-            // },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'created_by',
+                    foreignField: '_id',
+                    as: 'userInfo',
+                },
+            },
             {
                 $unwind: '$flightInfo',
             },
-            // {
-            //     $unwind: '$userInfo',
-            // },
+            {
+                $unwind: '$userInfo',
+            },
             {
                 $project: {
                     _id: 1,
@@ -85,11 +101,12 @@ exports.list = async (req, res) => {
                     phone: 1,
                     nationality: 1,
                     seats: 1,
+                    total_fare: 1,
                     status: 1,
                     'flightInfo.flight_number': 1,
                     'flightInfo.journey_date': 1,
-                    // 'userInfo.username': 1,
-                    // 'userInfo.email': 1,
+                    'userInfo.username': 1,
+                    'userInfo.email': 1,
                 },
             },
         ]);

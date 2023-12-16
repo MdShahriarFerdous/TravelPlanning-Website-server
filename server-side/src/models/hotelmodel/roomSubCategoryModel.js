@@ -5,6 +5,12 @@ const roomSubCategorySchema = new mongoose.Schema(
     hotelId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Hotel",
+      required: true,
+    },
+    roomCategoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RoomCategory",
+      required: true,
     },
     title: {
       type: String,
@@ -18,9 +24,13 @@ const roomSubCategorySchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
-    roomRentPerNight: {
+    rentPerPerson: {
       type: Number,
       required: true,
+    },
+    status: {
+      type: Boolean,
+      default: true,
     },
   },
   {
