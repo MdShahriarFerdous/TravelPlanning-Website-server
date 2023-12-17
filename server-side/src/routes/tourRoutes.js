@@ -67,10 +67,7 @@ router.get(
 );
 
 //checkbox
-router
-	.route("/show-checkCardList/:pageNo/:perPage")
-	.get(checkBoxSearch)
-	.post(checkBoxSearch);
+router.post("/show-checkCardList/:pageNo/:perPage", checkBoxSearch);
 //particular tourInfo by id
 router.get("/tour-info/:tourInfoId", tourByID);
 
