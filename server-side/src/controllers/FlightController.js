@@ -184,6 +184,9 @@ exports.readById = async (req, res) => {
 	try {
 		// Extract flight ID from request parameters
 		const flightId = req.params.id;
+		const total_travellers = req.params.travelers;
+
+		console.log("total_travellers", req.params.travelers)
 
 		// Validate if the provided ID is a valid ObjectId (MongoDB ID)
 		if (!ObjectId.isValid(flightId)) {
@@ -240,6 +243,16 @@ exports.readById = async (req, res) => {
 				$unwind: "$planeInfo",
 			},
 			{
+				$addFields: {
+					total_price: {
+						$add: [
+							{ $multiply: ["$fare", { $toInt: total_travellers }] },
+							"$tax",
+						],
+					},
+				},
+			},
+			{
 				$project: {
 					_id: 1,
 					flight_number: 1,
@@ -251,6 +264,7 @@ exports.readById = async (req, res) => {
 					arrival_time: 1,
 					flight_class: 1,
 					status: 1,
+					total_price: 1,
 					'sourceLocation.location_name': 1,
 					'sourceLocation.latitude': 1,
 					'sourceLocation.longitude': 1,
@@ -363,7 +377,7 @@ exports.searchFlights = async (req, res) => {
 
 		// Convert the date in mongodb format
 		const localDate = new Date(journey_date);
-		localDate.setDate(localDate.getDate() + 1)
+		// localDate.setDate(localDate.getDate() + 1)
 		const stringDate = localDate.toISOString()
 		console.log(localDate)
 		const datePart = stringDate.split("T")[0];
@@ -428,6 +442,16 @@ exports.searchFlights = async (req, res) => {
 				$unwind: "$planeInfo",
 			},
 			{
+				$addFields: {
+					total_price: {
+						$add: [
+							{ $multiply: ["$fare", { $toInt: total_travellers }] },
+							"$tax",
+						],
+					},
+				},
+			},
+			{
 				$project: {
 					_id: 1,
 					flight_number: 1,
@@ -438,6 +462,7 @@ exports.searchFlights = async (req, res) => {
 					arrival_time: 1,
 					flight_class: 1,
 					status: 1,
+					total_price: 1,
 					"sourceLocation.location_name": 1,
 					"sourceLocation.latitude": 1,
 					"sourceLocation.longitude": 1,

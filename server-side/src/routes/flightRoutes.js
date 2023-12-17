@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post('/flight', create);
 router.get('/flights', list);
-router.get('/flight/:id', readById);
+router.get('/flight/:id/:travelers', readById);
 router.put('/flight/:id', update);
 router.delete('/flight/:id', remove);
 router.post('/flight-search', searchFlights);
