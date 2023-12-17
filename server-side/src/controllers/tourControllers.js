@@ -831,6 +831,47 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 	}
 };
 
+exports.checkBoxSearch = async (req, res, next) => {
+	try {
+		const { pageNo, perPage } = req.params;
+		const pageNumber = parseInt(pageNo) || 1;
+		const perPageNumber = parseInt(perPage) || 10;
+		const skipRows = (pageNumber - 1) * perPageNumber;
+
+		const { checked } = req.body;
+
+		const combinedQuery = {
+			$and: [
+				checked && checked.length === 2
+					? {
+							startingPrice: {
+								$gte: parseInt(checked[0]),
+								$lte: parseInt(checked[1]),
+							},
+					  }
+					: {},
+			],
+		};
+
+		// Execute aggregation pipeline
+		const toursCardLists = await TourListCard.aggregate([
+			{ $match: combinedQuery },
+			{ $skip: skipRows },
+			{ $limit: perPageNumber },
+		]);
+
+		const totalCount = await TourListCard.countDocuments(combinedQuery);
+
+		res.status(200).json({
+			total: totalCount,
+			tourCardData: toursCardLists,
+		});
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: "Internal Server Error" });
+	}
+};
+
 //tour list by tour types
 exports.tourListsByType = async (req, res, next) => {
 	try {

@@ -23,6 +23,7 @@ const {
 	deleteTourBooking,
 	tourTypeCard,
 	tourListsByType,
+	checkBoxSearch,
 } = require("../controllers/tourControllers");
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddlewares");
 const router = express.Router();
@@ -64,6 +65,9 @@ router.get(
 	"/show-tourCardList/:pageNo/:perPage/:searchKeyword",
 	matchedLocationTourLists
 );
+
+//checkbox
+router.get("/show-tourCardList/:pageNo/:perPage", checkBoxSearch);
 //particular tourInfo by id
 router.get("/tour-info/:tourInfoId", tourByID);
 
