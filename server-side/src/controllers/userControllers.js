@@ -78,7 +78,7 @@ exports.userVerify = async (req, res, next) => {
 	try {
 		const { browserToken } = req.body;
 		//validation
-		if (!token) {
+		if (!browserToken) {
 			return res.json({ error: "Token not found!" });
 		}
 		const decoded = jwt.verify(browserToken, jwtSecretKey);

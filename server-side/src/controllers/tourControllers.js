@@ -838,7 +838,8 @@ exports.checkBoxSearch = async (req, res, next) => {
 		const perPageNumber = parseInt(perPage) || 10;
 		const skipRows = (pageNumber - 1) * perPageNumber;
 
-		const { checked } = req.body;
+		const checked =
+			req.method === "POST" ? req.body.checked : req.query.checked;
 
 		const combinedQuery = {
 			$and: [
