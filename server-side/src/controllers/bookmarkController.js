@@ -47,9 +47,11 @@ exports.addToTourBookmark = async (req, res, next) => {
     // extract userId from request headers and tourId from request params
     const userId = req.user._id;
     const { tourId } = req.params;
+    console.log(tourId)
 
     // search tourInfo
     const search = await TourInfo.findOne({ tourId });
+    console.log(search)
 
     if (!search) {
       return res.json({
