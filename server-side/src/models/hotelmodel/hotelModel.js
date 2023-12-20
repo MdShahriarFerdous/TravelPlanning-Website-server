@@ -51,7 +51,12 @@ const hotelSchema = new mongoose.Schema(
     },
     availableRooms: {
       type: Number,
-      default: 30,
+      default: 60,
+      validate: {
+        validator: Number.isInteger,
+        message: '{VALUE} is not an integer.',
+      },
+      min: 0,
     },
   },
   {

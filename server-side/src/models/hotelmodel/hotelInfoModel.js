@@ -6,6 +6,10 @@ const hotelInfoSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Hotel",
     },
+    address: {
+      type: String,
+      required: true,
+    },
     about1: {
       type: String,
       required: true,
@@ -44,6 +48,10 @@ const hotelInfoSchema = new mongoose.Schema(
     googleMap: {
       type: String,
       required: true,
+    },
+    status: {
+      type: Boolean,
+      default: true,
     },
   },
   {
