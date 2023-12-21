@@ -115,9 +115,20 @@ const hotelBookingController = {
         });
       }
       // Validate if Guests Number is More Than Rooms
+      if (guestsNumber < roomsNumber) {
+        return res.json({
+          error: "Maximum 1 Rooom is given to a Single Guest",
+        });
+      }
       if (roomsNumber * 3 < guestsNumber) {
         return res.json({
           error: "More Than 3 Guests Per Room is Not Allowed",
+        });
+      }
+      // Validate if Guests Number & Rooms Number is 0
+      if (guestsNumber === 0 || roomsNumber === 0) {
+        return res.json({
+          error: "Please Input at least 1 Room & 1 Guest",
         });
       }
 
@@ -353,9 +364,20 @@ const hotelBookingController = {
         });
       }
       // Validate if Guests Number is More Than Rooms
+      if (guestsNumber < roomsNumber) {
+        return res.json({
+          error: "Maximum 1 Rooom is given to a Single Guest",
+        });
+      }
       if (roomsNumber * 3 < guestsNumber) {
         return res.json({
           error: "More Than 3 Guests Per Room is Not Allowed",
+        });
+      }
+      // Validate if Guests Number & Rooms Number is 0
+      if (guestsNumber === 0 || roomsNumber === 0) {
+        return res.json({
+          error: "Please Input at least 1 Room & 1 Guest",
         });
       }
 

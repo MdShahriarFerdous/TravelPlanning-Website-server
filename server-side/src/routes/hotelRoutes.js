@@ -21,6 +21,7 @@ const {
   list: hotelInfoList,
   create: createHotelInfo,
   updateByHotelId,
+  readByHotelId,
 } = require("../controllers/hotel/hotelInfoController");
 const {
   create: createHotelBooking,
@@ -75,6 +76,7 @@ router.post(
 
 // Routes for Hotel Info
 router.get("/hotel-info", hotelInfoList);
+router.get("/hotel-info-get", readByHotelId);
 router.post(
   "/hotel-info",
   requireSignIn,

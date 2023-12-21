@@ -188,6 +188,33 @@ const hotelInfoController = {
       next(error);
     }
   },
+  // View a Single Hotel Info
+  readByHotelId: async (req, res, next) => {
+    try {
+      const { hotelId } = req.query || {};
+
+      // Validate if the provided ID is a valid ObjectId (MongoDB ID)
+      if (!ObjectId.isValid(hotelId)) {
+        return res.json({
+          error: "Invalid Hotel ID",
+        });
+      }
+
+      // Use findOneAndUpdate to update the Hotel Info by Hotel ID
+      const data = await HotelInfo.findOne({
+        hotelId: ObjectId.createFromHexString(hotelId),
+      });
+
+      // generate response
+      res.status(200).json({
+        status: "Success",
+        data,
+      });
+    } catch (error) {
+      next(error);
+      console.error(error.message);
+    }
+  },
   // List of All Hotel Info
   list: async (req, res, next) => {
     try {
