@@ -325,7 +325,7 @@ exports.confirmBooking = async (req, res) => {
         const result = await flightBooking.save();
 
         if (result) {
-            res.redirect(`https://we-travel-tech-taqwa.vercel.app/flights`)
+            res.redirect(`https://we-travel-tech-taqwa.vercel.app/flight/payment/success`)
         }
 
         // Return success response
