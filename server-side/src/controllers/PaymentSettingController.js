@@ -4,8 +4,8 @@ const { ObjectId } = require("mongoose").Types;
 const SSLCommerzPayment = require('sslcommerz-lts')
 const FlightBooking = require("../models/FlightBookingModel");
 
-const store_id = process.env.STORE_ID
-const store_passwd = process.env.STORE_PASS
+const store_id = 'wetra65809b1e14c59'
+const store_passwd = "wetra65809b1e14c59@ssl"
 const is_live = false //true for live, false for sandbox
 
 exports.payment = async (req, res) => {
