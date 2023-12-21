@@ -4,6 +4,7 @@ const Location = require("../../models/LocationModel");
 const { cloudinaryFolder, defaultPageSize } = require("../../../secrets");
 const cloudinary = require("../../helpers/cloudinaryConfig");
 const { ObjectId } = require("mongoose").Types;
+const RoomSubCategory = require("../../models/hotelmodel/roomSubCategoryModel");
 
 const {
   updateSrcCloudinary,
@@ -116,7 +117,7 @@ const roomCategoryController = {
   list: async (req, res, next) => {
     try {
       const { hotelId } = req.query || {};
-      let roomCategories = [];
+      let categories = [];
       if (hotelId) {
         // Validate if the provided ID is a valid ObjectId (MongoDB ID)
         if (!ObjectId.isValid(hotelId)) {
@@ -124,14 +125,30 @@ const roomCategoryController = {
             error: "Invalid Hotel ID",
           });
         }
-        roomCategories = await RoomCategory.find({
+        const categoriesWithSubcategories = await RoomCategory.find({
           hotelId,
           status: true,
-        });
+        }).lean();
+        for (const category of categoriesWithSubcategories) {
+          category.subCategories = await RoomSubCategory.find({
+            roomCategoryId: category._id,
+            status: true,
+          }).lean();
+        }
+        categories = categoriesWithSubcategories;
       } else {
-        roomCategories = await RoomCategory.find({ status: true });
+        const categoriesWithSubcategories = await RoomCategory.find({
+          status: true,
+        }).lean();
+        for (const category of categoriesWithSubcategories) {
+          category.subCategories = await RoomSubCategory.find({
+            roomCategoryId: category._id,
+            status: true,
+          }).lean();
+        }
+        categories = categoriesWithSubcategories;
       }
-      return res.status(200).json({ roomCategories });
+      return res.status(200).json({ categories });
     } catch (error) {
       next(error);
       console.error(error.message);

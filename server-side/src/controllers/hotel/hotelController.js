@@ -264,6 +264,7 @@ const hotelController = {
       const {
         name: newName,
         rentPerPerson: newRentPerPerson,
+        availableRooms: newAvailableRooms,
         thumbnailLink: newThumbnailLink,
         isFeatured: newIsFeatured,
         isTopRated: newIsTopRated,
@@ -278,7 +279,7 @@ const hotelController = {
       }
       const {
         name,
-        slug,
+        availableRooms,
         thumbnail,
         isFeatured,
         isTopRated,
@@ -353,6 +354,19 @@ const hotelController = {
         }
         if (rentPerPerson !== rent) {
           updatedHotelInfo.rentPerPerson = rent;
+        }
+      }
+
+      // Hotel Available Room validation
+      if (newAvailableRooms) {
+        const roomsAvailable = Number(newAvailableRooms);
+        if (isNaN(roomsAvailable)) {
+          return res.json({
+            error: "Room Number Must be a Number",
+          });
+        }
+        if (availableRooms !== roomsAvailable) {
+          updatedHotelInfo.availableRooms = roomsAvailable;
         }
       }
 
