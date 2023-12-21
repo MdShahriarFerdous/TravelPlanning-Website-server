@@ -779,7 +779,7 @@ exports.tourCard = async (req, res, next) => {
 //show all matching code tour cards after clicking on thumbnail
 exports.matchedLocationTourLists = async (req, res, next) => {
 	try {
-		const { searchKeyword, pageNo, perPage } = req.params;
+		const { searchKeyword, pageNo, perPage, tourType } = req.params;
 		const pageNumber = Number(pageNo) || 1;
 		const perPageNumber = Number(perPage) || 10;
 		const skipRows = (pageNumber - 1) * perPageNumber;
@@ -794,6 +794,8 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 				{ durations: searchRegex },
 			];
 		}
+		// Match query for tourMatchingCode
+		const matchQuery = { tourType: { $eq: tourType } };
 
 		// Combine search query with price range condition
 		const { checked } = req.body;
@@ -813,6 +815,7 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 
 		// Execute aggregation pipeline
 		const toursCardLists = await TourListCard.aggregate([
+			{ $match: matchQuery },
 			{ $match: combinedQuery },
 			{ $skip: skipRows },
 			{ $limit: perPageNumber },
@@ -833,13 +836,16 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 
 exports.checkBoxSearch = async (req, res, next) => {
 	try {
-		const { pageNo, perPage } = req.params;
+		const { pageNo, perPage, tourType } = req.params;
 		const pageNumber = parseInt(pageNo) || 1;
 		const perPageNumber = parseInt(perPage) || 10;
 		const skipRows = (pageNumber - 1) * perPageNumber;
 
 		const checked =
 			req.method === "POST" ? req.body.checked : req.query.checked;
+
+		// Match query for tourMatchingCode
+		const matchQuery = { tourType: { $eq: tourType } };
 
 		const combinedQuery = {
 			$and: [
@@ -856,6 +862,7 @@ exports.checkBoxSearch = async (req, res, next) => {
 
 		// Execute aggregation pipeline
 		const toursCardLists = await TourListCard.aggregate([
+			{ $match: matchQuery },
 			{ $match: combinedQuery },
 			{ $skip: skipRows },
 			{ $limit: perPageNumber },

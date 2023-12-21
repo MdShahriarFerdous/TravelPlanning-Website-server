@@ -62,12 +62,12 @@ router.get("/show-tourTypeLists/:tourType", tourListsByType);
 
 //search tour lists
 router.get(
-	"/show-tourCardList/:pageNo/:perPage/:searchKeyword",
+	"/show-tourCardList/:pageNo/:perPage/:searchKeyword/:tourType",
 	matchedLocationTourLists
 );
 
 //checkbox
-router.post("/show-checkCardList/:pageNo/:perPage", checkBoxSearch);
+router.post("/show-checkCardList/:pageNo/:perPage/:tourType", checkBoxSearch);
 //particular tourInfo by id
 router.get("/tour-info/:tourInfoId", tourByID);
 
