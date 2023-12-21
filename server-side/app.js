@@ -11,6 +11,8 @@ const hpp = require("hpp"); // to protect against HTTP Parameter Pollution attac
 const rateLimit = require("express-rate-limit");
 const mongoSanitize = require("express-mongo-sanitize"); //which sanitizes user-supplied data to prevent MongoDB Operator Injection.
 
+
+
 // Middlewares implement
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -30,6 +32,7 @@ const limiter = rateLimit({
 	message: "Too many requests from this IP",
 });
 app.use(limiter);
+
 
 //for multiple files in routes folder
 readdirSync("./src/routes").map((router) => {

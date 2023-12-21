@@ -55,7 +55,7 @@ exports.create = async (req, res) => {
         
         // Check if flight booking is created successfully
         if (newBooking && updatedFlight) {
-            return apiResponse.successResponse(res, 'Flight Booking successful!');
+            return apiResponse.successResponseWithData(res, 'Flight Booking successful!', newBooking);
         }
 
     } catch (err) {
@@ -288,6 +288,48 @@ exports.cancelBooking = async (req, res) => {
 
         // Return success response
         return apiResponse.successResponse(res, 'Flight Booking canceled successfully!');
+    } catch (err) {
+        // Log and handle errors
+        console.error('Error from cancelBooking:', err.message);
+        return apiResponse.errorResponse(res, 'Something went wrong');
+    }
+};
+
+// Flight Booking Cancel Controller Function
+exports.confirmBooking = async (req, res) => {
+    try {
+        const flightBookingId = req.params.id;
+
+        // Validate if the provided ID is a valid ObjectId (MongoDB ID)
+        if (!ObjectId.isValid(flightBookingId)) {
+            return apiResponse.errorResponse(res, 'Invalid Flight Booking ID');
+        }
+
+        // Find the flight booking by ID
+        const flightBooking = await FlightBooking.findById(flightBookingId);
+
+        // Check if the flight booking exists
+        if (!flightBooking) {
+            return apiResponse.errorResponse(res, 'Flight Booking not found');
+        }
+
+        // Check if the flight booking is already canceled
+        if (flightBooking.status === 'confirmed') {
+            return apiResponse.errorResponse(res, 'Flight Booking is already confirmed');
+        }
+
+        // Update the status to 'canceled'
+        flightBooking.status = 'confirmed';
+
+        // Save the updated flight booking
+        const result = await flightBooking.save();
+
+        if (result) {
+            res.redirect(`https://we-travel-tech-taqwa.vercel.app/flights`)
+        }
+
+        // Return success response
+        // return apiResponse.successResponse(res, 'Flight Booking confirmed successfully!');
     } catch (err) {
         // Log and handle errors
         console.error('Error from cancelBooking:', err.message);
