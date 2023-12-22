@@ -405,6 +405,8 @@ const blogController = {
       const totalPages = Math.ceil(count / pageSize);
 
       const blogs = await Blog.find({ author, ...keyword })
+        .populate("category", "title")
+        .populate("author", "username")
         .limit(pageSize)
         .skip(pageSize * (page - 1));
 
