@@ -1,6 +1,9 @@
 // Database Lib import
 const mongoose = require("mongoose");
-const {MongoDBAtlasConnection} = require("../../secrets");
+const {
+	MongoDBAtlasConnection,
+	MongoDBLocalConnection,
+} = require("../../secrets");
 
 const databaseConnection = () => {
 	mongoose.set("strictQuery", false);

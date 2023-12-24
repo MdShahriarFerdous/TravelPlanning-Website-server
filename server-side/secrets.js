@@ -19,6 +19,8 @@ const cloudinaryName = process.env.CLOUDINARY_CLOUD_NAME;
 const cloudinaryAPIKey = process.env.CLOUDINARY_API_KEY;
 const cloudinarySecretKey = process.env.CLOUDINARY_API_SECRET_KEY;
 
+const MongoDBLocalConnection = process.env.MONGO_DB_CONNECTION;
+
 module.exports = {
 	ServerPort,
 	defaultImagePath,
@@ -35,4 +37,5 @@ module.exports = {
 	cloudinarySecretKey,
 	deployClientURL,
 	cloudinaryFolder,
+	MongoDBLocalConnection,
 };

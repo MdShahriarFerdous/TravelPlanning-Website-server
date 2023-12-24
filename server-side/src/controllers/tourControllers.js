@@ -11,6 +11,7 @@ const TourBooking = require("../models/tourmodel/tourBookingModel");
 const TourListCard = require("../models/tourmodel/tourListCardModel");
 const TourThumbnail = require("../models/tourmodel/tourThumbnailModel");
 const TourTypeCard = require("../models/tourmodel/tourTypeCardModel");
+const TourPayment = require("../models/tourmodel/tourPaymentModel");
 
 //create foodmenu for particular tour
 exports.tourFoodMenu = async (req, res, next) => {
@@ -1105,6 +1106,94 @@ exports.deleteTourBooking = async (req, res, next) => {
 			message: "Booking is deleted",
 			deletedBooking,
 		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+//create payment infos
+exports.createTourPaymentInfo = async (req, res, next) => {
+	try {
+		const {
+			tourBookingId,
+			firstName,
+			lastName,
+			userMail,
+			gender,
+			phoneNumber,
+		} = req.body;
+
+		const bookingDetails = await TourBooking.findById({
+			_id: tourBookingId,
+		});
+
+		if (!bookingDetails) {
+			return res.status(404).json({
+				status: "Error",
+				message: "Booking details not found",
+			});
+		}
+		const payingAmount = bookingDetails.totalToPay * 100;
+		const createdPaymentData = await new TourPayment({
+			bookingId: tourBookingId,
+			issued_by: bookingDetails.userId,
+			tourInfoId: bookingDetails.tourInfoId,
+			tourId: bookingDetails.tourId,
+			cus_firstName: firstName,
+			cus_lastName: lastName,
+			cus_mail: userMail,
+			cus_gender: gender,
+			paymentAmount: payingAmount,
+			cus_phoneNumber: phoneNumber,
+		}).save();
+
+		res.status(201).json({
+			status: "Success",
+			message: "Payment Data Created",
+			createdPaymentData,
+		});
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+//payment-confirmed/successful
+exports.confirmTourPayment = async (req, res, next) => {
+	const { paymentId, bookingId } = req.params;
+
+	try {
+		const updatedPayment = await TourPayment.findByIdAndUpdate(
+			paymentId,
+			{ paymentStatus: "Confirmed" },
+			{ new: true }
+		);
+
+		if (!updatedPayment) {
+			return res.status(404).json({ error: "TourPayment not found" });
+		}
+
+		const updatedBooking = await TourBooking.findByIdAndUpdate(
+			bookingId,
+			{ bookingStatus: "Confirmed", paymentStatus: "Paid" },
+			{ new: true }
+		);
+
+		if (!updatedBooking) {
+			return res.status(404).json({ error: "TourBooking not found" });
+		}
+		const localURL = "https://localhost:5173/user/tour/payment/success";
+		const liveURL =
+			"https://we-travel-tech-taqwa.vercel.app/user/tour/payment/success";
+
+		if (
+			updatedPayment.paymentStatus === "Confirmed" &&
+			updatedBooking.bookingStatus === "Confirmed" &&
+			updatedBooking.paymentStatus === "Paid"
+		) {
+			res.redirect(localURL);
+		}
 	} catch (error) {
 		console.log(error);
 		next(error);

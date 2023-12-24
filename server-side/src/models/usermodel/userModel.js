@@ -1,11 +1,5 @@
 const mongoose = require("mongoose");
 
-//login count--> loginTry:{}
-//isLocked---> for admin
-
-//isAdmin, email, name, profile image--> user login res + token
-//isAdmin, email, name, profile image, loginTry---admin login res + token
-
 const userSchema = new mongoose.Schema(
 	{
 		username: {

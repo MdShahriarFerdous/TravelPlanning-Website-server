@@ -24,8 +24,11 @@ const {
 	tourTypeCard,
 	tourListsByType,
 	checkBoxSearch,
+	createTourPaymentInfo,
+	confirmTourPayment,
 } = require("../controllers/tourControllers");
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddlewares");
+const { tourPayment } = require("../controllers/PaymentSettingController");
 const router = express.Router();
 
 router.post("/create-foodmenu", requireSignIn, isAdmin, tourFoodMenu);
@@ -97,5 +100,14 @@ router.get("/get-personpay-data/:tourId/:packageName", getPersonPayData);
 
 //delete tour booking
 router.delete("/delete-booking/:id", deleteTourBooking);
+
+//create payment info
+router.post("/tour-payment-data/create", requireSignIn, createTourPaymentInfo);
+
+//tour-payment-with-sslcommerz
+router.post("/tour-payment", requireSignIn, tourPayment);
+
+//tour-payment-successful
+router.post("/tour-payment-confirm/:paymentId/:bookingId", confirmTourPayment);
 
 module.exports = router;
