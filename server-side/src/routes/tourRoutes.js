@@ -105,7 +105,7 @@ router.delete("/delete-booking/:id", deleteTourBooking);
 router.post("/tour-payment-data/create", requireSignIn, createTourPaymentInfo);
 
 //tour-payment-with-sslcommerz
-router.post("/tour-payment", requireSignIn, tourPayment);
+router.post("/tour-payment/:tourPaymentDataId", requireSignIn, tourPayment);
 
 //tour-payment-successful
 router.post("/tour-payment-confirm/:paymentId/:bookingId", confirmTourPayment);
