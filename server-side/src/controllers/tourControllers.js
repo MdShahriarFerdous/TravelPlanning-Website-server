@@ -1189,7 +1189,7 @@ exports.confirmTourPayment = async (req, res, next) => {
 		if (!updatedBooking) {
 			return res.status(404).json({ error: "TourBooking not found" });
 		}
-		const localURL = "http://localhost:5173/user/tour/payment/success";
+		// const localURL = "http://localhost:5173/user/tour/payment/success";
 		const liveURL =
 			"https://we-travel-tech-taqwa.vercel.app/user/tour/payment/success";
 
@@ -1198,7 +1198,7 @@ exports.confirmTourPayment = async (req, res, next) => {
 			updatedBooking.bookingStatus === "Confirmed" &&
 			updatedBooking.paymentStatus === "Paid"
 		) {
-			res.redirect(localURL);
+			res.redirect(liveURL);
 		}
 	} catch (error) {
 		console.log(error);
