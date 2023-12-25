@@ -1162,11 +1162,17 @@ exports.createTourPaymentInfo = async (req, res, next) => {
 //payment-confirmed/successful
 exports.confirmTourPayment = async (req, res, next) => {
 	const { paymentId, bookingId } = req.params;
+	const trans_Id = "tourpaid_" + Math.floor(Math.random() * 100000000);
 
 	try {
 		const updatedPayment = await TourPayment.findByIdAndUpdate(
 			paymentId,
-			{ paymentStatus: "Confirmed" },
+			{
+				$set: {
+					paymentStatus: "Confirmed",
+					transactionId: trans_Id,
+				},
+			},
 			{ new: true }
 		);
 

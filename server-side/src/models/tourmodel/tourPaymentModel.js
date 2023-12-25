@@ -20,6 +20,15 @@ const tourPaymentSchema = new mongoose.Schema(
 			required: true,
 			trim: true,
 		},
+		currency: {
+			type: String,
+			default: "BDT",
+		},
+		transactionId: {
+			type: String,
+			trim: true,
+			default: "N/A",
+		},
 		cus_firstName: {
 			type: String,
 			trim: true,
