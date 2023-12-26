@@ -115,7 +115,9 @@ exports.userVerify = async (req, res, next) => {
 			password: hashedPassword,
 		}).save();
 
-		await UserProfile.create({ user: registerUser._id });
+		const userProfile = await UserProfile.create({
+			user: registerUser._id,
+		});
 		// console.log(registerUser);
 
 		//generate token for user
@@ -131,7 +133,9 @@ exports.userVerify = async (req, res, next) => {
 			user: {
 				username: registerUser.username,
 				email: registerUser.email,
+				isAdmin: registerUser.isAdmin,
 			},
+			image: userProfile.image,
 			token,
 		});
 	} catch (error) {
@@ -194,8 +198,8 @@ exports.userLogin = async (req, res, next) => {
 				username: user.username,
 				email: user.email,
 				isAdmin: user.isAdmin,
-				image: userProfile.image,
 			},
+			image: userProfile.image,
 			token,
 		});
 	} catch (error) {
@@ -236,28 +240,10 @@ exports.updateProfile = async (req, res, next) => {
 			{ new: true, upsert: true }
 		);
 
-		const existingUser = await User.findById({ _id: userId });
-		if (!existingUser) {
-			return res.status(404).json({ error: "User not exist" });
-		}
-		//generate token for user
-		const token = createJsonWebToken(
-			{ _id: userId },
-			jwtSecretKey,
-			jwtExpirationTime
-		);
-
 		res.status(201).json({
 			status: "Success",
 			message: "Your data has been saved!",
 			profile,
-			user: {
-				username: existingUser.username,
-				email: existingUser.email,
-				isAdmin: existingUser.isAdmin,
-				image: profile.image,
-			},
-			token,
 		});
 	} catch (error) {
 		next(error);
@@ -347,6 +333,29 @@ exports.getUserById = async (req, res, next) => {
 		res.status(200).json({
 			status: "Success",
 			user,
+		});
+	} catch (error) {
+		next(error);
+		console.error(error.message);
+	}
+};
+
+//get UserImage
+exports.getUserImage = async (req, res, next) => {
+	try {
+		const userId = req.user._id;
+		if (!userId) {
+			return res
+				.status(404)
+				.json({ error: "No userId found when getting userimage" });
+		}
+		const userImage = await UserProfile.findById({ _id: userId }).select(
+			"image"
+		);
+
+		res.status(200).json({
+			status: "Success",
+			userImageURL: userImage,
 		});
 	} catch (error) {
 		next(error);
