@@ -240,6 +240,12 @@ exports.updateProfile = async (req, res, next) => {
 		if (!existingUser) {
 			return res.status(404).json({ error: "User not exist" });
 		}
+		//generate token for user
+		const token = createJsonWebToken(
+			{ _id: userId },
+			jwtSecretKey,
+			jwtExpirationTime
+		);
 
 		res.status(201).json({
 			status: "Success",
@@ -251,6 +257,7 @@ exports.updateProfile = async (req, res, next) => {
 				isAdmin: existingUser.isAdmin,
 				image: profile.image,
 			},
+			token,
 		});
 	} catch (error) {
 		next(error);
