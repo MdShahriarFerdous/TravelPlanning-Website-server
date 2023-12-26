@@ -344,18 +344,19 @@ exports.getUserById = async (req, res, next) => {
 exports.getUserImage = async (req, res, next) => {
 	try {
 		const userId = req.user._id;
+
 		if (!userId) {
 			return res
 				.status(404)
 				.json({ error: "No userId found when getting userimage" });
 		}
-		const userImage = await UserProfile.findById({ _id: userId }).select(
-			"image"
-		);
+		const userProfileImage = await UserProfile.findOne({
+			user: userId,
+		}).select("image");
 
 		res.status(200).json({
 			status: "Success",
-			userImageURL: userImage,
+			userImageURL: userProfileImage.image,
 		});
 	} catch (error) {
 		next(error);

@@ -4,7 +4,8 @@ const ServerPort = process.env.SERVER_PORT || process.env.PORT;
 const MongoDBAtlasConnection = process.env.MONGODB_ATLAS_CONNECTION;
 const defaultPageSize = process.env.DEFAULT_PAGE_SIZE || 5;
 const defaultImagePath =
-	process.env.DEFAULT_IMAGE_PATH || "public/images/users/profile.png";
+	process.env.DEFAULT_IMAGE_PATH ||
+	"https://res.cloudinary.com/dktnokbnw/image/upload/v1702530434/wetravel/user/profileImage_qdwwkv.png";
 const jwtSecretKey =
 	process.env.JWT_SECRET_KEY || "@ll_F-f9q_[U%XSA6SCrBfg}_gLfg";
 const jwtExpirationTime = process.env.JWT_EXPIRATION_TIME || "1d";
