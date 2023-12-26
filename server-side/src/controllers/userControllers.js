@@ -236,10 +236,21 @@ exports.updateProfile = async (req, res, next) => {
 			{ new: true, upsert: true }
 		);
 
+		const existingUser = await User.findById({ _id: userId });
+		if (!existingUser) {
+			return res.status(404).json({ error: "User not exist" });
+		}
+
 		res.status(201).json({
 			status: "Success",
 			message: "Your data has been saved!",
 			profile,
+			user: {
+				username: existingUser.username,
+				email: existingUser.email,
+				isAdmin: existingUser.isAdmin,
+				image: profile.image,
+			},
 		});
 	} catch (error) {
 		next(error);
