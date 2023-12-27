@@ -306,7 +306,11 @@ exports.getUserInfo = async (req, res, next) => {
 		//generate response
 		res.status(200).json({
 			status: "Success",
-			user,
+			user: {
+				username: user.username,
+				email: user.email,
+				isAdmin: user.isAdmin,
+			},
 		});
 	} catch (error) {
 		next(error);
