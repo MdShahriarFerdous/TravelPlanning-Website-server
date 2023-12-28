@@ -21,9 +21,12 @@ exports.Upload = async (req, res, next) => {
 		}).single("image");
 
 		upload(req, res, (err) => {
-			if (err) {
+			if (err instanceof multer.MulterError) {
 				console.error(err);
 				res.send("File Upload Fail");
+			} else if (err) {
+				console.error(err);
+				res.send("An unknown error occurred");
 			} else {
 				next();
 			}

@@ -212,42 +212,52 @@ exports.userLogin = async (req, res, next) => {
 exports.updateProfile = async (req, res, next) => {
 	try {
 		const { city, bio, phone } = req.body;
-		const { image, path } = req.file || {};
 		const userId = req.user._id;
 
-		const uploadToCloudinary = await cloudinary.uploader.upload(path, {
-			folder: `${cloudinaryFolder}/user`,
-		});
+		// Check if req.file exists
+		if (req.file) {
+			const { path } = req.file || {};
 
-		// Validation for bio only
-		if (bio && bio.length > 120) {
-			return res.json({ error: "Bio must be in 120 characters" });
-		}
-		if (image && image.size > 10000000) {
-			return res.json({
-				error: "Image should be less than 10mb in size",
+			const uploadToCloudinary = await cloudinary.uploader.upload(path, {
+				folder: `${cloudinaryFolder}/user`,
+			});
+
+			const profile = await UserProfile.findOneAndUpdate(
+				{ user: userId },
+				{
+					city,
+					bio,
+					image: uploadToCloudinary.secure_url,
+					phone,
+				},
+				{ new: true, upsert: true }
+			);
+
+			res.status(201).json({
+				status: "Success",
+				message: "Your data has been saved!",
+				profile,
+			});
+		} else {
+			const profile = await UserProfile.findOneAndUpdate(
+				{ user: userId },
+				{
+					city,
+					bio,
+					phone,
+				},
+				{ new: true, upsert: true }
+			);
+
+			res.status(201).json({
+				status: "Success",
+				message: "Your data has been saved!",
+				profile,
 			});
 		}
-
-		const profile = await UserProfile.findOneAndUpdate(
-			{ user: userId },
-			{
-				city,
-				bio,
-				image: uploadToCloudinary.secure_url,
-				phone,
-			},
-			{ new: true, upsert: true }
-		);
-
-		res.status(201).json({
-			status: "Success",
-			message: "Your data has been saved!",
-			profile,
-		});
 	} catch (error) {
+		console.error("Error updating profile:", error);
 		next(error);
-		console.log(error.message);
 	}
 };
 
