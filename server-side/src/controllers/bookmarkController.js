@@ -84,7 +84,6 @@ exports.addToTourBookmark = async (req, res, next) => {
 exports.getAllBookmarks = async (req, res, next) => {
 	try {
 		const userId = req.user._id;
-		console.log(req.query);
 
 		const { type } = req.query || {};
 		if (!type) {
