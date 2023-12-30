@@ -195,9 +195,9 @@ const hotelBookingController = {
             error: "Please Input at least 1 Room & 1 Guest",
           });
         }
-        // Cost Calculation
+        // Cost Calculation if room sub category provided
         rentPerGuest = hotelSubData.rentPerPerson.toFixed(2);
-        totalCost = (guestsNumber * hotelData.rentPerPerson).toFixed(2);
+        totalCost = (guestsNumber * Number(rentPerGuest)).toFixed(2);
       } else {
         if (roomsNumber * 3 < guestsNumber) {
           return res.json({
@@ -210,9 +210,9 @@ const hotelBookingController = {
             error: "Please Input at least 1 Room & 1 Guest",
           });
         }
-        // Cost Calculation
+        // Cost Calculation if room sub category not provided
         rentPerGuest = hotelData.rentPerPerson.toFixed(2);
-        totalCost = (guestsNumber * hotelData.rentPerPerson).toFixed(2);
+        totalCost = (guestsNumber * Number(rentPerGuest)).toFixed(2);
       }
 
       // Use findOneAndUpdate to update the Hotel by its ID
@@ -531,9 +531,9 @@ const hotelBookingController = {
             error: "Please Input at least 1 Room & 1 Guest",
           });
         }
-        // Cost Calculation
+        // Cost Calculation if room sub category provided
         rentPerGuest = hotelSubData.rentPerPerson.toFixed(2);
-        totalCost = (guestsNumber * hotelData.rentPerPerson).toFixed(2);
+        totalCost = (guestsNumber * Number(rentPerGuest)).toFixed(2);
       } else {
         if (roomsNumber * 3 < guestsNumber) {
           return res.json({
@@ -548,7 +548,7 @@ const hotelBookingController = {
         }
         // Cost Calculation
         rentPerGuest = hotelData.rentPerPerson.toFixed(2);
-        totalCost = (guestsNumber * hotelData.rentPerPerson).toFixed(2);
+        totalCost = (guestsNumber * Number(rentPerGuest)).toFixed(2);
       }
       // generate response
       res.status(200).json({
