@@ -186,7 +186,6 @@ exports.readById = async (req, res) => {
 		const flightId = req.params.id;
 		const total_travellers = req.params.travelers;
 
-		console.log("total_travellers", req.params.travelers)
 
 		// Validate if the provided ID is a valid ObjectId (MongoDB ID)
 		if (!ObjectId.isValid(flightId)) {
@@ -380,12 +379,10 @@ exports.searchFlights = async (req, res) => {
 		// localDate.setDate(localDate.getDate() + 1)
 		const stringDate = localDate.toISOString()
 
-		console.log(journey_date)
 		const test = journey_date.toString()
 		const newTest = test.split("T")[0];
 		const newDate = `${newTest}T00:00:00.000Z`;
 
-		console.log(new Date(newDate))
 		const datePart = stringDate.split("T")[0];
 		const modifiedISOString = `${datePart}T00:00:00.000Z`;
 

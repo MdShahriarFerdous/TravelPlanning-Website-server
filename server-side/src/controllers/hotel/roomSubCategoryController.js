@@ -30,28 +30,36 @@ const roomSubCategoryController = {
         });
       }
 
-      // Validate if Rent Per Person is Integer or Not
+      // Rent Per Person Validations
+      if (!rentPerPerson) {
+        return res.json({
+          error: "Please Provide Room Rent Per Person",
+        });
+      }
       const rent = Number(rentPerPerson);
       if (!Number.isInteger(rent)) {
         return res.json({
           error: "Rent Per Person Must be an Integer",
         });
       }
-      // Validate if Room Number is a Positive Integer
       if (rent < 0) {
         return res.json({
           error: "Rent Per Person Must be a Positive Integer",
         });
       }
 
-      // Validate if Maximum Guest Allowed is Integer or Not
+      // Maximum Guest Allowed Validations
+      if (!maxAllowed) {
+        return res.json({
+          error: "Please Provide How Many Guests Allowed Per Room",
+        });
+      }
       const maxGuestAllowed = Number(maxAllowed);
       if (!Number.isInteger(maxGuestAllowed)) {
         return res.json({
           error: "Maximum Guest Allowed Must be an Integer",
         });
       }
-      // Validate if Room Number is a Positive Integer
       if (maxGuestAllowed < 0) {
         return res.json({
           error: "Maximum Guest Allowed Must be a Positive Integer",
