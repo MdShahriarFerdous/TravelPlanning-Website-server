@@ -673,7 +673,7 @@ const hotelBookingController = {
         new: true,
       });
       res.redirect(
-        "https://we-travel-tech-taqwa.vercel.app/hotel/payment/success"
+        "https://we-travel-tech-taqwa.vercel.app/user/hotel/payment/success"
       );
     } catch (err) {
       console.error("Error from confirm hotel Booking:", err.message);
