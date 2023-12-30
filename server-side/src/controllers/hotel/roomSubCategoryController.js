@@ -1,6 +1,6 @@
 const RoomCategory = require("../../models/hotelmodel/roomCategoryModel");
 const RoomSubCategory = require("../../models/hotelmodel/roomSubCategoryModel");
-const { ObjectId } = require("mongoose").Types;
+const Hotel = require("../../models/hotelmodel/hotelModel");
 const {
   updateSrcCloudinary,
   deleteSrcCloudinary,
@@ -16,6 +16,7 @@ const roomSubCategoryController = {
         keyFeatures,
         facilities,
         rentPerPerson,
+        maxAllowed,
       } = req.body;
 
       // Check if Hotel & Hotel Room Sub Category exists
@@ -29,11 +30,31 @@ const roomSubCategoryController = {
         });
       }
 
-      // Check if given string value is a decimal, after pasing
+      // Validate if Rent Per Person is Integer or Not
       const rent = Number(rentPerPerson);
-      if (isNaN(rent)) {
+      if (!Number.isInteger(rent)) {
         return res.json({
-          error: "Room Rent Per Night Must be a Number",
+          error: "Rent Per Person Must be an Integer",
+        });
+      }
+      // Validate if Room Number is a Positive Integer
+      if (rent < 0) {
+        return res.json({
+          error: "Rent Per Person Must be a Positive Integer",
+        });
+      }
+
+      // Validate if Maximum Guest Allowed is Integer or Not
+      const maxGuestAllowed = Number(maxAllowed);
+      if (!Number.isInteger(maxGuestAllowed)) {
+        return res.json({
+          error: "Maximum Guest Allowed Must be an Integer",
+        });
+      }
+      // Validate if Room Number is a Positive Integer
+      if (maxGuestAllowed < 0) {
+        return res.json({
+          error: "Maximum Guest Allowed Must be a Positive Integer",
         });
       }
 
@@ -61,6 +82,34 @@ const roomSubCategoryController = {
         });
       }
 
+      // Update Hotel Rent Per Person
+      const data = [];
+      const categoriesWithSubcategories = await RoomCategory.find({
+        hotelId,
+        status: true,
+      }).lean();
+      for (const category of categoriesWithSubcategories) {
+        category.subCategories = await RoomSubCategory.find({
+          roomCategoryId: category._id,
+          status: true,
+        }).lean();
+        data.push(...category.subCategories);
+      }
+      const newRent = Number(rent.toFixed(2));
+
+      // Hotel Rent Per Person data
+      // const sum = data.reduce((acc, obj) => acc + obj["rentPerPerson"], 0);
+      // const updatedRent = (sum + newRent) / (data.length + 1);
+      const updatedRent = data.reduce((min, currentObject) => {
+        const currentValue = currentObject.value;
+        return currentValue < min ? currentValue : min;
+      }, newRent);
+      await Hotel.findByIdAndUpdate(
+        hotelId,
+        { rentPerPerson: Number(updatedRent.toFixed(2)) },
+        { new: true }
+      );
+
       // if all validation passed
       const hoteRoomSubCategory = await RoomSubCategory.create({
         hotelId,
@@ -69,6 +118,7 @@ const roomSubCategoryController = {
         keyFeatures: keyFeaturesList,
         facilities: facilitiesList,
         rentPerPerson: Number(rent.toFixed(2)),
+        maxAllowed: Number(maxGuestAllowed.toFixed()),
       });
 
       // generate response

@@ -52,6 +52,7 @@ const hotelController = {
         hotels = await Hotel.find({
           status: true,
         })
+          .sort({ updatedAt: -1 })
           .populate("location", "location_name")
           .limit(pageSize)
           .skip(pageSize * (page - 1));
@@ -89,6 +90,7 @@ const hotelController = {
             count = await Hotel.countDocuments(criteria);
             totalPages = Math.ceil(count / pageSize);
             hotels = await Hotel.find(criteria)
+              .sort({ updatedAt: -1 })
               .populate("location", "location_name")
               .limit(pageSize)
               .skip(pageSize * (page - 1));
@@ -113,6 +115,7 @@ const hotelController = {
             count = await Hotel.countDocuments(criteria);
             totalPages = Math.ceil(count / pageSize);
             hotels = await Hotel.find(criteria)
+              .sort({ updatedAt: -1 })
               .populate("location", "location_name")
               .limit(pageSize)
               .skip(pageSize * (page - 1));
@@ -133,6 +136,7 @@ const hotelController = {
             count = await Hotel.countDocuments(criteria);
             totalPages = Math.ceil(count / pageSize);
             hotels = await Hotel.find(criteria)
+              .sort({ updatedAt: -1 })
               .populate("location", "location_name")
               .limit(pageSize)
               .skip(pageSize * (page - 1));
@@ -145,6 +149,7 @@ const hotelController = {
             count = await Hotel.countDocuments(criteria);
             totalPages = Math.ceil(count / pageSize);
             hotels = await Hotel.find(criteria)
+              .sort({ updatedAt: -1 })
               .populate("location", "location_name")
               .limit(pageSize)
               .skip(pageSize * (page - 1));
@@ -167,14 +172,8 @@ const hotelController = {
   // create a Hotel
   create: async (req, res, next) => {
     try {
-      const {
-        name,
-        location,
-        rentPerPerson,
-        thumbnailLink,
-        isFeatured,
-        isTopRated,
-      } = req.body;
+      const { name, location, thumbnailLink, isFeatured, isTopRated } =
+        req.body;
 
       // Check if Hotel Name exists
       const hotelName = await Hotel.findOne({ name });
@@ -189,14 +188,6 @@ const hotelController = {
       if (!hotelLocation) {
         return res.json({
           error: "Hotel Location Not Found",
-        });
-      }
-
-      // Check if given string value is a decimal, after pasing
-      const rent = Number(rentPerPerson);
-      if (isNaN(rent)) {
-        return res.json({
-          error: "Rent Per Person Must be a Number",
         });
       }
 
@@ -240,7 +231,6 @@ const hotelController = {
         name,
         slug: slugify(name, { lower: true }),
         location: hotelLocation._id,
-        rentPerPerson: Number(rent.toFixed(2)),
         thumbnail: thumb,
         isFeatured: isFeatured === "true" ? true : false,
         isTopRated: isTopRated === "true" ? true : false,
@@ -263,7 +253,6 @@ const hotelController = {
       const { hotelId } = req.params;
       const {
         name: newName,
-        rentPerPerson: newRentPerPerson,
         availableRooms: newAvailableRooms,
         thumbnailLink: newThumbnailLink,
         isFeatured: newIsFeatured,
@@ -283,7 +272,6 @@ const hotelController = {
         thumbnail,
         isFeatured,
         isTopRated,
-        rentPerPerson,
         location,
         status,
       } = oldHotelInfo || {};
@@ -342,19 +330,6 @@ const hotelController = {
           });
         }
         updatedHotelInfo.location = hotelLocation._id;
-      }
-
-      // Hotel Rent validation
-      if (newRentPerPerson) {
-        const rent = Number(newRentPerPerson);
-        if (isNaN(rent)) {
-          return res.json({
-            error: "Rent Per Person Must be a Number",
-          });
-        }
-        if (rentPerPerson !== rent) {
-          updatedHotelInfo.rentPerPerson = rent;
-        }
       }
 
       // Hotel Available Room validation

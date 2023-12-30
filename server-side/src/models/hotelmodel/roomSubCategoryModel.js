@@ -28,6 +28,11 @@ const roomSubCategorySchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    maxAllowed: {
+      type: Number,
+      default: 1,
+      required: true,
+    },
     status: {
       type: Boolean,
       default: true,

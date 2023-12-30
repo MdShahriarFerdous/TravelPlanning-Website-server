@@ -24,10 +24,15 @@ const {
   readByHotelId,
 } = require("../controllers/hotel/hotelInfoController");
 const {
+  read: hotelBookingsDetail,
   create: createHotelBooking,
   list: hotelBookingsList,
+  userHotelBookingsList,
   listWithoutPaginate: hotelBookingsListWithoutPaginate,
   checkAvailablity,
+  cancelBooking,
+  failBooking,
+  confirmBooking,
 } = require("../controllers/hotel/hotelBookingController");
 
 // Routes for hotels
@@ -95,6 +100,16 @@ router.put(
 // Routes for Hotel Bookings
 router.get("/hotel-bookings", requireSignIn, isAdmin, hotelBookingsList);
 router.get(
+  "/user-specific-hotel-bookings",
+  requireSignIn,
+  userHotelBookingsList
+);
+router.get(
+  "/hotel-bookings/:hotelBookingId",
+  requireSignIn,
+  hotelBookingsDetail
+);
+router.get(
   "/hotel-bookings-no-paginate",
   requireSignIn,
   isAdmin,
@@ -102,4 +117,7 @@ router.get(
 );
 router.post("/hotel-bookings", requireSignIn, createHotelBooking);
 router.post("/hotel-available", checkAvailablity);
+router.put("/hotel-bookings-fail/:id", failBooking);
+router.put("/hotel-bookings-cancel/:id", cancelBooking);
+router.post("/hotel-bookings-confirm/:id", confirmBooking);
 module.exports = router;

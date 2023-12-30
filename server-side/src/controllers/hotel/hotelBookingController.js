@@ -1,11 +1,37 @@
 const HotelBooking = require("../../models/hotelmodel/hotelBookingModel");
 const Hotel = require("../../models/hotelmodel/hotelModel");
+const RoomCategory = require("../../models/hotelmodel/roomCategoryModel");
+const RoomSubCategory = require("../../models/hotelmodel/roomSubCategoryModel");
 const { ObjectId } = require("mongoose").Types;
 const { isValidDateFormat } = require("../../helpers/checkDateFormat");
 const { defaultPageSize } = require("../../../secrets");
 const moment = require("moment");
 
 const hotelBookingController = {
+  // View a Single Hotel Booking
+  read: async (req, res, next) => {
+    try {
+      const { hotelBookingId } = req.params;
+
+      // Retrieve Hotel Booking's Data
+      const data = await HotelBooking.findOne({ _id: hotelBookingId })
+        .populate("hotelId", "name")
+        .populate("roomCategoryId", "name")
+        .populate("roomSubCategoryId", "title");
+      if (!data) {
+        return res.json({ error: "Hotel Booking Not Found" });
+      }
+
+      // generate response
+      res.status(200).json({
+        status: "Success",
+        data,
+      });
+    } catch (error) {
+      next(error);
+      console.error(error.message);
+    }
+  },
   // Create Hotel Info Doc
   create: async (req, res, next) => {
     try {
@@ -13,6 +39,8 @@ const hotelBookingController = {
       // Destructure variables from req.body
       const {
         hotelId,
+        roomCategoryId,
+        roomSubCategoryId,
         firstName,
         lastName,
         email,
@@ -23,11 +51,15 @@ const hotelBookingController = {
         rooms,
         checkIn,
         checkOut,
+        guestsInfo,
+        additional,
       } = req.body;
 
       // Required field validation
       const requiredFields = [
         "hotelId",
+        "roomCategoryId",
+        "roomSubCategoryId",
         "firstName",
         "lastName",
         "phone",
@@ -37,6 +69,7 @@ const hotelBookingController = {
         "rooms",
         "checkIn",
         "checkOut",
+        "guestsInfo",
       ];
       for (const field of requiredFields) {
         if (!req.body[field]) {
@@ -50,9 +83,33 @@ const hotelBookingController = {
           error: "Invalid Hotel ID",
         });
       }
+      // Validate if the provided ID is a valid ObjectId (MongoDB ID)
+      if (!ObjectId.isValid(roomCategoryId)) {
+        return res.json({
+          error: "Invalid Room Category ID",
+        });
+      }
+      // Validate if the provided ID is a valid ObjectId (MongoDB ID)
+      if (!ObjectId.isValid(roomSubCategoryId)) {
+        return res.json({
+          error: "Invalid Room Sub Category ID",
+        });
+      }
       const hotelData = await Hotel.findOne({ _id: hotelId });
       if (!hotelData) {
         return res.json({ error: "No Such Hotel Found" });
+      }
+      const hotelCategoryData = await RoomCategory.findOne({
+        _id: roomCategoryId,
+      });
+      if (!hotelCategoryData) {
+        return res.json({ error: "No Such Room Category Found" });
+      }
+      const hotelSubData = await RoomSubCategory.findOne({
+        _id: roomSubCategoryId,
+      });
+      if (!hotelSubData) {
+        return res.json({ error: "No Such Sub Category Room Found" });
       }
       // Validate if Check In Date Format is Ok or Not
       if (!isValidDateFormat(checkIn, "YYYY-MM-DD")) {
@@ -117,24 +174,46 @@ const hotelBookingController = {
       // Validate if Guests Number is More Than Rooms
       if (guestsNumber < roomsNumber) {
         return res.json({
-          error: "Maximum 1 Rooom is given to a Single Guest",
-        });
-      }
-      if (roomsNumber * 3 < guestsNumber) {
-        return res.json({
-          error: "More Than 3 Guests Per Room is Not Allowed",
-        });
-      }
-      // Validate if Guests Number & Rooms Number is 0
-      if (guestsNumber === 0 || roomsNumber === 0) {
-        return res.json({
-          error: "Please Input at least 1 Room & 1 Guest",
+          error: "Maximum 1 Room is given to a Single Guest",
         });
       }
 
-      // Cost Calculation
-      const rentPerGuest = hotelData.rentPerPerson.toFixed(2);
-      const totalCost = (guestsNumber * hotelData.rentPerPerson).toFixed(2);
+      let rentPerGuest = "0.00";
+      let totalCost = "0.00";
+      if (roomSubCategoryId) {
+        const maxGuest = Number(hotelSubData.maxAllowed);
+        if (roomsNumber * maxGuest < guestsNumber) {
+          return res.json({
+            error: `More Than ${maxGuest} Guest${
+              maxGuest > 1 ? "s" : ""
+            } Per Room is Not Allowed`,
+          });
+        }
+        // Validate if Guests Number & Rooms Number is 0
+        if (guestsNumber === 0 || roomsNumber === 0) {
+          return res.json({
+            error: "Please Input at least 1 Room & 1 Guest",
+          });
+        }
+        // Cost Calculation
+        rentPerGuest = hotelSubData.rentPerPerson.toFixed(2);
+        totalCost = (guestsNumber * hotelData.rentPerPerson).toFixed(2);
+      } else {
+        if (roomsNumber * 3 < guestsNumber) {
+          return res.json({
+            error: "More Than 3 Guests Per Room is Not Allowed",
+          });
+        }
+        // Validate if Guests Number & Rooms Number is 0
+        if (guestsNumber === 0 || roomsNumber === 0) {
+          return res.json({
+            error: "Please Input at least 1 Room & 1 Guest",
+          });
+        }
+        // Cost Calculation
+        rentPerGuest = hotelData.rentPerPerson.toFixed(2);
+        totalCost = (guestsNumber * hotelData.rentPerPerson).toFixed(2);
+      }
 
       // Use findOneAndUpdate to update the Hotel by its ID
       const nextAvailableDate = new Date(checkOutDate);
@@ -157,6 +236,8 @@ const hotelBookingController = {
       const newHotelBooking = await HotelBooking.create({
         createdBy: userId,
         hotelId,
+        roomCategoryId,
+        roomSubCategoryId,
         firstName,
         lastName,
         email,
@@ -164,11 +245,13 @@ const hotelBookingController = {
         nationality,
         nid,
         guests: guestsNumber,
+        guestsInfo,
         rooms: roomsNumber,
         checkIn,
         checkOut,
         rentPerGuest,
         totalCost,
+        additional,
       });
 
       // Check if Hotel booking is created successfully
@@ -216,17 +299,23 @@ const hotelBookingController = {
         {
           $project: {
             _id: 1,
-            flight_id: 1,
-            created_by: 1,
-            first_name: 1,
-            last_name: 1,
+            hotelId: 1,
+            roomSubCategoryId: 1,
+            createdBy: 1,
+            firstName: 1,
+            lastName: 1,
+            email: 1,
             phone: 1,
             nationality: 1,
-            seats: 1,
-            total_fare: 1,
+            nid: 1,
+            guests: 1,
+            rooms: 1,
+            checkIn: 1,
+            checkOut: 1,
+            rentPerGuest: 1,
+            totalCost: 1,
             status: 1,
-            "flightInfo.flight_number": 1,
-            "flightInfo.journey_date": 1,
+            "hotelInfo.name": 1,
             "userInfo.username": 1,
             "userInfo.email": 1,
           },
@@ -254,12 +343,48 @@ const hotelBookingController = {
       let count = 0;
       let totalPages = 0;
       let hotelBookings = [];
-
       count = await HotelBooking.countDocuments({});
       totalPages = Math.ceil(count / pageSize);
       hotelBookings = await HotelBooking.find({})
+        .sort({ updatedAt: -1 })
         .limit(pageSize)
         .skip(pageSize * (page - 1));
+      res.status(200).json({
+        hotelBookings,
+        page,
+        totalPages,
+        count,
+        itemsPerPage: pageSize,
+      });
+    } catch (error) {
+      next(error);
+      console.error(error.message);
+    }
+  },
+  // List of All Hotel Bookings By a User With Paginate
+  userHotelBookingsList: async (req, res, next) => {
+    try {
+      const userId = req.user;
+      const pageSize = Number(defaultPageSize); // Number of items per page
+      const { pageNumber } = req.query || {};
+      const page = Number(pageNumber) || 1;
+      let count = 0;
+      let totalPages = 0;
+      let hotelBookings = [];
+      count = await HotelBooking.countDocuments({});
+      totalPages = Math.ceil(count / pageSize);
+      hotelBookings = await HotelBooking.find({
+        createdBy: userId,
+      })
+        .sort({ updatedAt: -1 })
+        .populate("hotelId", "name")
+        .populate("roomCategoryId", "name")
+        .populate("roomSubCategoryId", "title")
+        .limit(pageSize)
+        .skip(pageSize * (page - 1))
+        .select(
+          "_id hotelId roomCategoryId roomSubCategoryId checkIn checkOut rooms guests totalCost createdAt status"
+        );
       res.status(200).json({
         hotelBookings,
         page,
@@ -277,7 +402,8 @@ const hotelBookingController = {
     try {
       const userId = req.user;
       // Destructure variables from req.body
-      const { hotelId, guests, rooms, checkIn, checkOut } = req.body;
+      const { hotelId, roomSubCategoryId, guests, rooms, checkIn, checkOut } =
+        req.body;
 
       // Required field validation
       const requiredFields = [
@@ -299,10 +425,28 @@ const hotelBookingController = {
           error: "Invalid Hotel ID",
         });
       }
+      // Validate if the provided ID is a valid ObjectId (MongoDB ID)
+      if (roomSubCategoryId) {
+        if (!ObjectId.isValid(roomSubCategoryId)) {
+          return res.json({
+            error: "Invalid Room Sub Category ID",
+          });
+        }
+      }
       const hotelData = await Hotel.findOne({ _id: hotelId });
       if (!hotelData) {
         return res.json({ error: "No Such Hotel Found" });
       }
+      let hotelSubData = {};
+      if (roomSubCategoryId) {
+        hotelSubData = await RoomSubCategory.findOne({
+          _id: roomSubCategoryId,
+        });
+        if (!hotelSubData) {
+          return res.json({ error: "No Such Room Sub Category Found" });
+        }
+      }
+
       // Validate if Check In Date Format is Ok or Not
       if (!isValidDateFormat(checkIn, "YYYY-MM-DD")) {
         return res.json({
@@ -366,25 +510,46 @@ const hotelBookingController = {
       // Validate if Guests Number is More Than Rooms
       if (guestsNumber < roomsNumber) {
         return res.json({
-          error: "Maximum 1 Rooom is given to a Single Guest",
-        });
-      }
-      if (roomsNumber * 3 < guestsNumber) {
-        return res.json({
-          error: "More Than 3 Guests Per Room is Not Allowed",
-        });
-      }
-      // Validate if Guests Number & Rooms Number is 0
-      if (guestsNumber === 0 || roomsNumber === 0) {
-        return res.json({
-          error: "Please Input at least 1 Room & 1 Guest",
+          error: "Maximum 1 Room is given to a Single Guest",
         });
       }
 
-      // Cost Calculation
-      const rentPerGuest = hotelData.rentPerPerson.toFixed(2);
-      const totalCost = (guestsNumber * hotelData.rentPerPerson).toFixed(2);
-
+      let rentPerGuest = "0.00";
+      let totalCost = "0.00";
+      if (roomSubCategoryId) {
+        const maxGuest = Number(hotelSubData.maxAllowed);
+        if (roomsNumber * maxGuest < guestsNumber) {
+          return res.json({
+            error: `More Than ${maxGuest} Guest${
+              maxGuest > 1 ? "s" : ""
+            } Per Room is Not Allowed`,
+          });
+        }
+        // Validate if Guests Number & Rooms Number is 0
+        if (guestsNumber === 0 || roomsNumber === 0) {
+          return res.json({
+            error: "Please Input at least 1 Room & 1 Guest",
+          });
+        }
+        // Cost Calculation
+        rentPerGuest = hotelSubData.rentPerPerson.toFixed(2);
+        totalCost = (guestsNumber * hotelData.rentPerPerson).toFixed(2);
+      } else {
+        if (roomsNumber * 3 < guestsNumber) {
+          return res.json({
+            error: "More Than 3 Guests Per Room is Not Allowed",
+          });
+        }
+        // Validate if Guests Number & Rooms Number is 0
+        if (guestsNumber === 0 || roomsNumber === 0) {
+          return res.json({
+            error: "Please Input at least 1 Room & 1 Guest",
+          });
+        }
+        // Cost Calculation
+        rentPerGuest = hotelData.rentPerPerson.toFixed(2);
+        totalCost = (guestsNumber * hotelData.rentPerPerson).toFixed(2);
+      }
       // generate response
       res.status(200).json({
         status: "Success",
@@ -401,6 +566,120 @@ const hotelBookingController = {
     } catch (error) {
       console.error(error.message);
       next(error);
+    }
+  },
+  // Cancel Hotel Booking
+  cancelBooking: async (req, res, next) => {
+    try {
+      const hotelBookingId = req.params.id;
+      // Validate if the provided ID is a valid ObjectId (MongoDB ID)
+      if (!ObjectId.isValid(hotelBookingId)) {
+        return res.json({
+          error: "Invalid Hotel Booking ID",
+        });
+      }
+      // Find the Hotel booking by ID
+      const hotelBooking = await HotelBooking.findById(hotelBookingId);
+      // Check if the Hotel booking exists
+      if (!hotelBooking) {
+        return res.json({
+          error: "Hotel Booking not found",
+        });
+      }
+      // Check if the Hotel booking is already canceled
+      if (hotelBooking.status === "canceled") {
+        return res.json({
+          error: "Hotel Booking is already canceled",
+        });
+      }
+      // Update the status to 'canceled'
+      hotelBooking.status = "canceled";
+      // Save the updated hotel booking
+      await HotelBooking.findByIdAndUpdate(hotelBookingId, hotelBooking, {
+        new: true,
+      });
+    } catch (err) {
+      console.error("Error from cancel hotel Booking:", err.message);
+      return res.json({
+        error: "Something Went Wrong",
+      });
+    }
+  },
+  // Hotel Booking Failed
+  failBooking: async (req, res, next) => {
+    try {
+      const hotelBookingId = req.params.id;
+      // Validate if the provided ID is a valid ObjectId (MongoDB ID)
+      if (!ObjectId.isValid(hotelBookingId)) {
+        return res.json({
+          error: "Invalid Hotel Booking ID",
+        });
+      }
+      // Find the Hotel booking by ID
+      const hotelBooking = await HotelBooking.findById(hotelBookingId);
+      // Check if the Hotel booking exists
+      if (!hotelBooking) {
+        return res.json({
+          error: "Hotel Booking not found",
+        });
+      }
+      // Check if the Hotel booking is already failed
+      if (hotelBooking.status === "failed") {
+        return res.json({
+          error: "Hotel Booking is already failed",
+        });
+      }
+      // Update the status to 'failed'
+      hotelBooking.status = "failed";
+      // Save the updated hotel booking
+      await HotelBooking.findByIdAndUpdate(hotelBookingId, hotelBooking, {
+        new: true,
+      });
+    } catch (err) {
+      console.error("Error from failed hotel Booking:", err.message);
+      return res.json({
+        error: "Something Went Wrong",
+      });
+    }
+  },
+  // Confirm Hotel Booking
+  confirmBooking: async (req, res, next) => {
+    try {
+      const hotelBookingId = req.params.id;
+      // Validate if the provided ID is a valid ObjectId (MongoDB ID)
+      if (!ObjectId.isValid(hotelBookingId)) {
+        return res.json({
+          error: "Invalid Hotel Booking ID",
+        });
+      }
+      // Find the Hotel booking by ID
+      const hotelBooking = await HotelBooking.findById(hotelBookingId);
+      // Check if the Hotel booking exists
+      if (!hotelBooking) {
+        return res.json({
+          error: "Hotel Booking not found",
+        });
+      }
+      // Check if the Hotel booking is already confirmed
+      if (hotelBooking.status === "confirmed") {
+        return res.json({
+          error: "Hotel Booking is already Confirmed",
+        });
+      }
+      // Update the status to 'confirmed'
+      hotelBooking.status = "confirmed";
+      // Save the updated hotel booking
+      await HotelBooking.findByIdAndUpdate(hotelBookingId, hotelBooking, {
+        new: true,
+      });
+      res.redirect(
+        "https://we-travel-tech-taqwa.vercel.app/hotel/payment/success"
+      );
+    } catch (err) {
+      console.error("Error from confirm hotel Booking:", err.message);
+      return res.json({
+        error: "Something Went Wrong",
+      });
     }
   },
 };

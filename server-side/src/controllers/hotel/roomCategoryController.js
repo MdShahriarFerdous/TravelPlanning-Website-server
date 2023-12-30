@@ -1,15 +1,10 @@
 const Hotel = require("../../models/hotelmodel/hotelModel");
 const RoomCategory = require("../../models/hotelmodel/roomCategoryModel");
-const Location = require("../../models/LocationModel");
-const { cloudinaryFolder, defaultPageSize } = require("../../../secrets");
+const { cloudinaryFolder } = require("../../../secrets");
 const cloudinary = require("../../helpers/cloudinaryConfig");
 const { ObjectId } = require("mongoose").Types;
 const RoomSubCategory = require("../../models/hotelmodel/roomSubCategoryModel");
 
-const {
-  updateSrcCloudinary,
-  deleteSrcCloudinary,
-} = require("../../utilities/updateCloudinaryImage");
 const roomCategoryController = {
   // create a Hotel Room Category
   create: async (req, res, next) => {
