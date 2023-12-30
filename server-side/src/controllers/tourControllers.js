@@ -36,7 +36,7 @@ exports.tourFoodMenu = async (req, res, next) => {
 			createFoodMenu,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -75,7 +75,7 @@ exports.tourDescription = async (req, res, next) => {
 			tourFoodMenu,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -100,7 +100,7 @@ exports.tourTips = async (req, res, next) => {
 			createdTourTips,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -124,7 +124,7 @@ exports.tourIncludeExclude = async (req, res, next) => {
 			createdIncludeExclude,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -156,7 +156,7 @@ exports.tourPackageOptions = async (req, res, next) => {
 			createdPackageOption,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -206,7 +206,7 @@ exports.tourInfo = async (req, res, next) => {
 			createdTourInfo,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -232,7 +232,7 @@ exports.personPayChart = async (req, res, next) => {
 			createdPersonPayment,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -273,7 +273,7 @@ exports.vehiclePayChart = async (req, res, next) => {
 			createdVehiclePriceData,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -384,7 +384,7 @@ exports.tourBooking = async (req, res, next) => {
 			totalCost,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -713,7 +713,7 @@ exports.tourByID = async (req, res, next) => {
 			},
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -751,7 +751,7 @@ exports.tourCard = async (req, res, next) => {
 			createdTourCard,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -772,7 +772,7 @@ exports.tourCard = async (req, res, next) => {
 // 			createdTourTypeCard,
 // 		});
 // 	} catch (error) {
-// 		console.log(error);
+// 		console.error(error);
 // 		next(error);
 // 	}
 // };
@@ -830,7 +830,7 @@ exports.matchedLocationTourLists = async (req, res, next) => {
 			tourCardData: toursCardLists,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -903,7 +903,7 @@ exports.tourListsByType = async (req, res, next) => {
 			totalCount,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -955,7 +955,7 @@ exports.tourThumbnail = async (req, res, next) => {
 			thumbnailDetails: createTourThumbnail,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -975,7 +975,7 @@ exports.listTourThumbnail = async (req, res, next) => {
 			tourPackageLists: allThumbnailsList,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -996,7 +996,7 @@ exports.getTourBookingInfo = async (req, res, next) => {
 			tourBookingInfo,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -1017,7 +1017,7 @@ exports.getVehicleData = async (req, res, next) => {
 			vehicleData,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -1041,7 +1041,7 @@ exports.getPackageData = async (req, res, next) => {
 			packageData,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -1065,7 +1065,7 @@ exports.getPersonPayData = async (req, res, next) => {
 			personPayData,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -1083,7 +1083,7 @@ exports.tourInfoByID = async (req, res, next) => {
 			getTourInfo,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -1107,7 +1107,7 @@ exports.deleteTourBooking = async (req, res, next) => {
 			deletedBooking,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -1154,7 +1154,7 @@ exports.createTourPaymentInfo = async (req, res, next) => {
 			createdPaymentData,
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };
@@ -1201,7 +1201,7 @@ exports.confirmTourPayment = async (req, res, next) => {
 			res.redirect(liveURL);
 		}
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
 	}
 };

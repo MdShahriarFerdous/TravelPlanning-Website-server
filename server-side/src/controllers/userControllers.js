@@ -69,7 +69,7 @@ exports.userRegister = async (req, res, next) => {
 		});
 	} catch (error) {
 		next(error);
-		console.log(error.message);
+		console.error(error.message);
 	}
 };
 
@@ -118,7 +118,6 @@ exports.userVerify = async (req, res, next) => {
 		const userProfile = await UserProfile.create({
 			user: registerUser._id,
 		});
-		// console.log(registerUser);
 
 		//generate token for user
 		const token = createJsonWebToken(
@@ -204,7 +203,7 @@ exports.userLogin = async (req, res, next) => {
 		});
 	} catch (error) {
 		next(error);
-		console.log(error.message);
+		console.error(error.message);
 	}
 };
 
@@ -292,7 +291,7 @@ exports.updateUser = async (req, res, next) => {
 		});
 	} catch (error) {
 		next(error);
-		console.log(error.message);
+		console.error(error.message);
 	}
 };
 

@@ -140,6 +140,144 @@ const roomSubCategoryController = {
       next(error);
     }
   },
+  // create a Hotel Room Sub Category
+  update: async (req, res, next) => {
+    try {
+      const { roomSubCategoryId } = req.params;
+      const {
+        hotelId,
+        roomCategoryId,
+        title,
+        keyFeatures,
+        facilities,
+        rentPerPerson,
+        maxAllowed,
+      } = req.body;
+
+      const oldInfo = await RoomSubCategory.findOne({ _id: roomSubCategoryId });
+      if (!oldInfo) {
+        return res.json({ error: "Room Sub Category Does Not Exist" });
+      }
+
+      // Check if Hotel & Hotel Room Sub Category exists
+      const response = await RoomCategory.findOne({
+        _id: roomCategoryId,
+        hotelId,
+      });
+      if (!response) {
+        return res.json({
+          error: "Hotel Or Room Category Does Not Exist",
+        });
+      }
+
+      // Rent Per Person Validations
+      if (!rentPerPerson) {
+        return res.json({
+          error: "Please Provide Room Rent Per Person",
+        });
+      }
+      const rent = Number(rentPerPerson);
+      if (!Number.isInteger(rent)) {
+        return res.json({
+          error: "Rent Per Person Must be an Integer",
+        });
+      }
+      if (rent < 0) {
+        return res.json({
+          error: "Rent Per Person Must be a Positive Integer",
+        });
+      }
+
+      // Maximum Guest Allowed Validations
+      if (!maxAllowed) {
+        return res.json({
+          error: "Please Provide How Many Guests Allowed Per Room",
+        });
+      }
+      const maxGuestAllowed = Number(maxAllowed);
+      if (!Number.isInteger(maxGuestAllowed)) {
+        return res.json({
+          error: "Maximum Guest Allowed Must be an Integer",
+        });
+      }
+      if (maxGuestAllowed < 0) {
+        return res.json({
+          error: "Maximum Guest Allowed Must be a Positive Integer",
+        });
+      }
+
+      // Key Features Validation
+      if (!keyFeatures) {
+        return res.json({
+          error:
+            "Please Provide at least 1 key Feature of this Room Sub Category",
+        });
+      }
+      const keyFeaturesList = keyFeatures.split(",");
+
+      // Facilities Validation
+      if (!facilities) {
+        return res.json({
+          error: "Please Provide at least 1 facility of this Room Sub Category",
+        });
+      }
+      const facilitiesList = facilities.split(",");
+
+      // Room Sub Category Title Validation
+      if (!title) {
+        return res.json({
+          error: "Please Provide a Title for the Room Sub Category",
+        });
+      }
+
+      // Update Hotel Rent Per Person
+      const data = [];
+      const categoriesWithSubcategories = await RoomCategory.find({
+        hotelId,
+        status: true,
+      }).lean();
+      for (const category of categoriesWithSubcategories) {
+        category.subCategories = await RoomSubCategory.find({
+          roomCategoryId: category._id,
+          status: true,
+        }).lean();
+        data.push(...category.subCategories);
+      }
+      const newRent = Number(rent.toFixed(2));
+      const updatedRent = data.reduce((min, currentObject) => {
+        const currentValue = currentObject.value;
+        return currentValue < min ? currentValue : min;
+      }, newRent);
+      await Hotel.findByIdAndUpdate(
+        hotelId,
+        { rentPerPerson: Number(updatedRent.toFixed(2)) },
+        { new: true }
+      );
+
+      // if all validation passed
+      const hoteRoomSubCategory = await RoomSubCategory.findByIdAndUpdate(
+        roomSubCategoryId,
+        {
+          title,
+          keyFeatures: keyFeaturesList,
+          facilities: facilitiesList,
+          rentPerPerson: Number(rent.toFixed(2)),
+          maxAllowed: Number(maxGuestAllowed.toFixed()),
+        },
+        { new: true }
+      );
+
+      // generate response
+      res.status(200).json({
+        status: "Success",
+        message: `Hotel Room Sub Category: '${title}' Updated`,
+        data: hoteRoomSubCategory,
+      });
+    } catch (error) {
+      console.error(error.message);
+      next(error);
+    }
+  },
 };
 
 module.exports = roomSubCategoryController;

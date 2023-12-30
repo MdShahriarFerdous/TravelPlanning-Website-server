@@ -16,6 +16,7 @@ const {
 } = require("../controllers/hotel/roomCategoryController");
 const {
   create: createRoomSubCategory,
+  update: updateRoomSubCategory,
 } = require("../controllers/hotel/roomSubCategoryController");
 const {
   list: hotelInfoList,
@@ -77,6 +78,12 @@ router.post(
   requireSignIn,
   isAdmin,
   createRoomSubCategory
+);
+router.put(
+  "/room-sub-categories/:roomSubCategoryId",
+  requireSignIn,
+  isAdmin,
+  updateRoomSubCategory
 );
 
 // Routes for Hotel Info
