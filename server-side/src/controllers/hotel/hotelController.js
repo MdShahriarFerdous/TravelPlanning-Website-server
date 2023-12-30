@@ -15,10 +15,10 @@ const hotelController = {
       const { hotelId } = req.params;
 
       // Retrieve Hotel's Data
-      const hotelData = await Hotel.findOne({ slug: hotelId }).populate(
-        "location",
-        "location_name"
-      );
+      const hotelData = await Hotel.findOne({
+        slug: hotelId,
+        status: true,
+      }).populate("location", "location_name");
       if (!hotelData) {
         return res.json({ error: "Hotel Not Found" });
       }

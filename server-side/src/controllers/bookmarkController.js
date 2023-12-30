@@ -37,7 +37,7 @@ exports.addToHotelBookmark = async (req, res, next) => {
 	} catch (error) {
 		// pass the error to the next middleware
 		next(error);
-		console.log(error.message);
+		console.error(error.message);
 	}
 };
 
@@ -76,7 +76,7 @@ exports.addToTourBookmark = async (req, res, next) => {
 	} catch (error) {
 		// pass the error to the next middleware
 		next(error);
-		console.log(error.message);
+		console.error(error.message);
 	}
 };
 
@@ -116,7 +116,7 @@ exports.getAllBookmarks = async (req, res, next) => {
 		}
 	} catch (error) {
 		next(error);
-		console.log(error.message);
+		console.error(error.message);
 	}
 };
 
@@ -144,7 +144,7 @@ exports.removeHotelBookmark = async (req, res, next) => {
 		}
 	} catch (error) {
 		next(error);
-		console.log(error.message);
+		console.error(error.message);
 	}
 };
 
@@ -156,10 +156,8 @@ exports.removeTourBookmark = async (req, res, next) => {
 
 		// search tourInfo
 		const search = await TourInfo.findOne({ tourId });
-		// console.log(search);
 
 		const foundTourId = search._id;
-		// console.log("tourID: " + foundTourId);
 
 		const result = await bookmarkModel.findOneAndUpdate(
 			{ userId, tourId: foundTourId },
@@ -179,6 +177,6 @@ exports.removeTourBookmark = async (req, res, next) => {
 		}
 	} catch (error) {
 		next(error);
-		console.log(error.message);
+		console.error(error.message);
 	}
 };
