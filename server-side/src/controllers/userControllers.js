@@ -57,19 +57,20 @@ exports.userRegister = async (req, res, next) => {
       subject: "Account activation from WeTravel",
       html: `<h2>Hello ${username} !</h2>
 						<h4>Please <a href="${deployedActivationURL}" target="_blank">click here</a> to acctivate your account.</h4>`,
-    };
-    //send email with nodemailer
-    await sendEmail(emailData);
-    res.status(200).json({
-      status: "success",
-      message: "Please go to your email for completing registration process",
-      token,
-      verifyId,
-    });
-  } catch (error) {
-    next(error);
-    console.log(error.message);
-  }
+		};
+		//send email with nodemailer
+		await sendEmail(emailData);
+		res.status(200).json({
+			status: "success",
+			message:
+				"Please go to your email for completing registration process",
+			token,
+			verifyId,
+		});
+	} catch (error) {
+		next(error);
+		console.error(error.message);
+	}
 };
 
 //verify user through activation link
@@ -114,10 +115,9 @@ exports.userVerify = async (req, res, next) => {
       password: hashedPassword,
     }).save();
 
-    const userProfile = await UserProfile.create({
-      user: registerUser._id,
-    });
-    // console.log(registerUser);
+		const userProfile = await UserProfile.create({
+			user: registerUser._id,
+		});
 
     //generate token for user
     const token = createJsonWebToken(
@@ -190,21 +190,21 @@ exports.userLogin = async (req, res, next) => {
 
     const userProfile = await UserProfile.findOne({ user: user._id });
 
-    res.status(200).json({
-      status: "success",
-      message: "Welcome again",
-      user: {
-        username: user.username,
-        email: user.email,
-        isAdmin: user.isAdmin,
-      },
-      image: userProfile.image,
-      token,
-    });
-  } catch (error) {
-    next(error);
-    console.log(error.message);
-  }
+		res.status(200).json({
+			status: "success",
+			message: "Welcome again",
+			user: {
+				username: user.username,
+				email: user.email,
+				isAdmin: user.isAdmin,
+			},
+			image: userProfile.image,
+			token,
+		});
+	} catch (error) {
+		next(error);
+		console.error(error.message);
+	}
 };
 
 //update user profile or create user profile
@@ -284,15 +284,15 @@ exports.updateUser = async (req, res, next) => {
 
     updated.password = undefined; // so that in the response password will not be shown.
 
-    res.status(201).json({
-      status: "Success",
-      message: "Your data updated!",
-      updated,
-    });
-  } catch (error) {
-    next(error);
-    console.log(error.message);
-  }
+		res.status(201).json({
+			status: "Success",
+			message: "Your data updated!",
+			updated,
+		});
+	} catch (error) {
+		next(error);
+		console.error(error.message);
+	}
 };
 
 //get user detail
@@ -335,7 +335,7 @@ exports.getUserById = async (req, res, next) => {
     let user = await User.findById(id);
     if (!user) {
       return res.json({
-        error: "User Doesnt Exist",
+        error: "User Doesn't Exist",
       });
     }
 

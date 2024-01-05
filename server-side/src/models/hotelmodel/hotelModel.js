@@ -24,6 +24,7 @@ const hotelSchema = new mongoose.Schema(
     },
     rentPerPerson: {
       type: Number,
+      default: 0,
       required: true,
     },
     thumbnail: {

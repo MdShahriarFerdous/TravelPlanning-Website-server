@@ -16,6 +16,7 @@ const {
 } = require("../controllers/hotel/roomCategoryController");
 const {
   create: createRoomSubCategory,
+  update: updateRoomSubCategory,
 } = require("../controllers/hotel/roomSubCategoryController");
 const {
   list: hotelInfoList,
@@ -24,10 +25,15 @@ const {
   readByHotelId,
 } = require("../controllers/hotel/hotelInfoController");
 const {
+  read: hotelBookingsDetail,
   create: createHotelBooking,
   list: hotelBookingsList,
+  userHotelBookingsList,
   listWithoutPaginate: hotelBookingsListWithoutPaginate,
   checkAvailablity,
+  cancelBooking,
+  failBooking,
+  confirmBooking,
 } = require("../controllers/hotel/hotelBookingController");
 
 // Routes for hotels
@@ -73,6 +79,12 @@ router.post(
   isAdmin,
   createRoomSubCategory
 );
+router.put(
+  "/room-sub-categories/:roomSubCategoryId",
+  requireSignIn,
+  isAdmin,
+  updateRoomSubCategory
+);
 
 // Routes for Hotel Info
 router.get("/hotel-info", hotelInfoList);
@@ -95,6 +107,16 @@ router.put(
 // Routes for Hotel Bookings
 router.get("/hotel-bookings", requireSignIn, isAdmin, hotelBookingsList);
 router.get(
+  "/user-specific-hotel-bookings",
+  requireSignIn,
+  userHotelBookingsList
+);
+router.get(
+  "/hotel-bookings/:hotelBookingId",
+  requireSignIn,
+  hotelBookingsDetail
+);
+router.get(
   "/hotel-bookings-no-paginate",
   requireSignIn,
   isAdmin,
@@ -102,4 +124,7 @@ router.get(
 );
 router.post("/hotel-bookings", requireSignIn, createHotelBooking);
 router.post("/hotel-available", checkAvailablity);
+router.put("/hotel-bookings-fail/:id", failBooking);
+router.put("/hotel-bookings-cancel/:id", cancelBooking);
+router.post("/hotel-bookings-confirm/:id", confirmBooking);
 module.exports = router;

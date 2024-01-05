@@ -100,7 +100,7 @@ exports.adminLogin = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
-    console.log(error.message);
+    console.error(error.message);
   }
 };
 
@@ -113,7 +113,7 @@ exports.getAllUsers = async (req, res, next) => {
     res.status(200).json({ status: "success", users });
   } catch (error) {
     next(error);
-    console.log(error.message);
+    console.error(error.message);
   }
 };
 
@@ -135,7 +135,7 @@ exports.getUserById = async (req, res, next) => {
     res.status(200).json({ status: "success", user });
   } catch (error) {
     next(error);
-    console.log(error.message);
+    console.error(error.message);
   }
 };
 
@@ -176,7 +176,7 @@ exports.updateLock = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
-    console.log(error.message);
+    console.error(error.message);
   }
 };
 
@@ -209,6 +209,6 @@ exports.updateBan = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
-    console.log(error.message);
+    console.error(error.message);
   }
 };

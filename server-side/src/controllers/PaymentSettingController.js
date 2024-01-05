@@ -4,7 +4,7 @@ const { ObjectId } = require("mongoose").Types;
 const SSLCommerzPayment = require("sslcommerz-lts");
 const FlightBooking = require("../models/FlightBookingModel");
 const TourPayment = require("../models/tourmodel/tourPaymentModel");
-
+const HotelBooking = require("../models/hotelmodel/hotelBookingModel");
 const store_id = "wetra65809b1e14c59";
 const store_passwd = "wetra65809b1e14c59@ssl";
 const is_live = false; //true for live, false for sandbox
@@ -55,7 +55,6 @@ exports.payment = async (req, res) => {
 			ship_postcode: 1000,
 			ship_country: "Bangladesh",
 		};
-		// console.log(data)
 		const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
 		sslcz.init(data).then((apiResponse) => {
 			// Redirect the user to payment gateway
@@ -117,7 +116,54 @@ exports.tourPayment = async (req, res, next) => {
 			console.log("Redirecting to: ", GatewayPageURL);
 		});
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		next(error);
+	}
+};
+
+exports.hotelBookingPayment = async (req, res, next) => {
+	try {
+		const { hotelBookingId } = req.body;
+		const hotelBooking = await HotelBooking.findOne({ _id: hotelBookingId })
+		const tran_id = new ObjectId().toString();
+		const data = {
+			total_amount: hotelBooking?.totalCost || 0,
+			currency: "BDT",
+			tran_id: tran_id,
+			success_url: `https://travelplanning-website-server.onrender.com/api/v1/hotel-bookings-confirm/${hotelBooking?._id}`,
+			fail_url: `https://travelplanning-website-server.onrender.com/api/v1/hotel-bookings-fail/${hotelBooking?._id}`,
+			cancel_url: `https://travelplanning-website-server.onrender.com/api/v1/hotel-bookings-cancel/${hotelBooking?._id}`,
+			ipn_url: "http://localhost:3030/ipn",
+			shipping_method: "Courier",
+			product_name: "Computer.",
+			product_category: "Electronic",
+			product_profile: "general",
+			cus_name: "Customer Name",
+			cus_email: "customer@example.com",
+			cus_add1: "Dhaka",
+			cus_add2: "Dhaka",
+			cus_city: "Dhaka",
+			cus_state: "Dhaka",
+			cus_postcode: "1000",
+			cus_country: "Bangladesh",
+			cus_phone: "01711111111",
+			cus_fax: "01711111111",
+			ship_name: "Customer Name",
+			ship_add1: "Dhaka",
+			ship_add2: "Dhaka",
+			ship_city: "Dhaka",
+			ship_state: "Dhaka",
+			ship_postcode: 1000,
+			ship_country: "Bangladesh",
+		};
+		const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
+		sslcz.init(data).then((apiResponse) => {
+			let GatewayPageURL = apiResponse.GatewayPageURL;
+			res.send({ url: GatewayPageURL });
+			console.log("Redirecting to: ", GatewayPageURL);
+		});
+	} catch (err) {
+		console.error("Error From Read", err.message);
+		return apiResponse.errorResponse(res, "Something went wrong");
 	}
 };

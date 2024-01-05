@@ -5,6 +5,17 @@ const hotelBookingSchema = new mongoose.Schema(
     hotelId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Hotel",
+      required: true,
+    },
+    roomCategoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RoomCategory",
+      required: true,
+    },
+    roomSubCategoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RoomSubCategory",
+      required: true,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -48,6 +59,10 @@ const hotelBookingSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    guestsInfo: {
+      type: Object,
+      required: true,
+    },
     rooms: {
       type: Number,
       required: true,
@@ -68,9 +83,12 @@ const hotelBookingSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    additional: {
+      type: Object,
+    },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "completed", "canceled"],
+      enum: ["pending", "confirmed", "completed", "canceled", "failed"],
       default: "pending",
     },
   },
