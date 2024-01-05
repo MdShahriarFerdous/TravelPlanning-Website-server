@@ -8,6 +8,7 @@ const {
 	getUserInfo,
 	getUserById,
 	getUserImage,
+	getUserProfile
 } = require("../controllers/userControllers");
 const { requireSignIn } = require("../middlewares/authMiddlewares");
 const { Upload } = require("../middlewares/imageMiddleware");
@@ -36,5 +37,8 @@ router.get("/user-by-id/:id", getUserById);
 
 //get user Image
 router.get("/user-image", requireSignIn, getUserImage);
+
+//get user Profile
+router.get("/get-profile", requireSignIn, getUserProfile);
 
 module.exports = router;
